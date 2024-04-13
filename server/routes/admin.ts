@@ -62,4 +62,48 @@ adminRouter.route("/add_dept").post((req: Request, res: Response) => {
   }
 });
 
+adminRouter.route("/add_emp").post((req: Request, res: Response) => {
+  const {
+    first_name,
+    last_name,
+    dept,
+    phone,
+    email,
+    address,
+    joining_date,
+    image,
+    isadmin
+  } = req.body;
+  const sql =
+    "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, address, joining_date, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  try {
+    db.query(
+      sql,
+      [
+        uuidv4(),
+        first_name,
+        last_name,
+        dept,
+        phone,
+        email,
+        address,
+        joining_date,
+        image,
+        isadmin
+      ],
+      (err, result) => {
+        if (err) {
+          return res.status(400).json({ status: false, message: err });
+        } else {
+          return res
+            .status(200)
+            .json({ status: true, message: "Employee added successfully" });
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 export default adminRouter;

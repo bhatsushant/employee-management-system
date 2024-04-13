@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express, { Request, Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 import db from "../utils/db";
 
@@ -8,7 +9,7 @@ const adminRouter = express.Router();
 
 const sec: string = process.env.ACCESS_TOKEN_SECRET as string;
 
-adminRouter.route("/").post((req: Request, res: Response) => {
+adminRouter.post("/", (req: Request, res: Response) => {
   const { email, password, isadmin } = req.body;
   const sql =
     "SELECT * FROM users where email = ? and password = ? and isadmin = ?";
@@ -36,6 +37,24 @@ adminRouter.route("/").post((req: Request, res: Response) => {
             .status(400)
             .json({ loginStatus: false, message: "Invalid email or password" });
         }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+adminRouter.route("/add_dept").post((req: Request, res: Response) => {
+  const { name } = req.body;
+  const sql = "INSERT INTO department (dept_id, dept_name) VALUES (?, ?)";
+  try {
+    db.query(sql, [uuidv4(), name], (err, result) => {
+      if (err) {
+        return res.status(400).json({ status: false, message: err });
+      } else {
+        return res
+          .status(200)
+          .json({ status: true, message: "Category added successfully" });
       }
     });
   } catch (error) {

@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import adminRouter from "../routes/admin";
+import authRouter from "../routes/auth";
 
 const app: Express = express();
 
@@ -13,7 +13,7 @@ app.use(
 );
 
 app.use(express.json());
-app.use("/admin", adminRouter);
+app.use("/auth", authRouter);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");

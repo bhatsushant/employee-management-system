@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import axios from "axios";
-// import { nativeSignIn, auth, signInWithGooglePopup } from "@/utils/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -23,17 +24,14 @@ const Login = () => {
         email,
         password
       });
-      console.log("Login successful", response.data);
-      // Redirect or perform actions after successful login
+
+      navigate("/employee");
     } catch (error) {
       console.error("Login failed", error);
-      // Handle login failure
     }
   };
 
-  const handleSignInWithGoogle = async () => {
-    // Implement Google sign-in logic if needed
-  };
+  const handleSignInWithGoogle = async () => {};
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">

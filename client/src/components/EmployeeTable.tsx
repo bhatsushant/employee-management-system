@@ -9,10 +9,8 @@ import {
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -33,30 +31,6 @@ export type Employee = {
 
 const columns: ColumnDef<Employee>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value: string) =>
-          table.toggleAllPageRowsSelected(!!value)
-        }
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value: string) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
     accessorKey: "first_name",
     header: "First Name",
     cell: ({ row }) => <div>{row.getValue("first_name")}</div>
@@ -65,21 +39,6 @@ const columns: ColumnDef<Employee>[] = [
     accessorKey: "last_name",
     header: "Last Name",
     cell: ({ row }) => <div>{row.getValue("last_name")}</div>
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>
   },
   {
     accessorKey: "dept",
@@ -103,9 +62,10 @@ const columns: ColumnDef<Employee>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: () => (
-      <div className="flex space-x-2">
+      <div className="flex justify-center space-x-2">
         <Button variant="ghost">Edit</Button>
         <Button variant="ghost">Delete</Button>
       </div>
@@ -119,7 +79,9 @@ export function EmployeeTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/auth/employees");
+        const response = await axios.get(
+          "http://localhost:3000/auth/employees"
+        );
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -148,7 +110,12 @@ export function EmployeeTable() {
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => {
                       return (
-                        <TableHead key={header.id}>
+                        <TableHead
+                          key={header.id}
+                          className={
+                            header.id === "actions" ? "text-center" : ""
+                          }
+                        >
                           {header.isPlaceholder
                             ? null
                             : flexRender(

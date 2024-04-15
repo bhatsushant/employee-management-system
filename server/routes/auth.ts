@@ -10,11 +10,10 @@ const router = Router();
 const sec: string = process.env.ACCESS_TOKEN_SECRET as string;
 
 router.post("/", (req: Request, res: Response) => {
-  const { email, password, isadmin } = req.body;
-  const sql =
-    "SELECT * FROM users where email = ? and password = ? and isadmin = ?";
+  const { email, password } = req.body;
+  const sql = "SELECT * FROM users where email = ? and password = ?";
   try {
-    db.query(sql, [email, password, isadmin], (err, result) => {
+    db.query(sql, [email, password], (err, result) => {
       if (err) {
         return res.status(400).json({ loginStatus: false, message: err });
       } else {
@@ -31,7 +30,7 @@ router.post("/", (req: Request, res: Response) => {
 
           return res
             .status(200)
-            .json({ loginStatus: false, message: "Login successful" });
+            .json({ loginStatus: true, message: "Login successful" });
         } else {
           res
             .status(400)
@@ -63,10 +62,19 @@ router.route("/add_dept").post((req: Request, res: Response) => {
 });
 
 router.route("/add_emp").post((req: Request, res: Response) => {
-  const { first_name, last_name, dept, phone, email, address, image, isadmin } =
-    req.body;
+  const {
+    first_name,
+    last_name,
+    dept,
+    phone,
+    email,
+    password,
+    address,
+    image,
+    isadmin
+  } = req.body;
   const sql =
-    "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, address, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
   try {
     db.query(
       sql,
@@ -77,6 +85,7 @@ router.route("/add_emp").post((req: Request, res: Response) => {
         dept,
         phone,
         email,
+        password,
         address,
         image,
         isadmin

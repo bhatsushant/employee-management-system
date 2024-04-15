@@ -3,6 +3,7 @@ config();
 import { Router, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import db from "../utils/db";
 
 const router = Router();
@@ -74,23 +75,24 @@ router.route("/add_emp").post((req: Request, res: Response) => {
     isadmin
   } = req.body;
   const sql =
-    "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, image, isadmin) VALUES (?)";
   try {
-    db.query(
-      sql,
-      [
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err)
+        return res.status(500).json({ Status: false, message: "Query Error" });
+      const values = [
         uuidv4(),
         first_name,
         last_name,
         dept,
         phone,
         email,
-        password,
+        hash,
         address,
         image,
         isadmin
-      ],
-      (err, result) => {
+      ];
+      db.query(sql, [values], (err, result) => {
         if (err) {
           return res.status(400).json({ status: false, message: err });
         } else {
@@ -98,11 +100,22 @@ router.route("/add_emp").post((req: Request, res: Response) => {
             .status(200)
             .json({ status: true, message: "Employee added successfully" });
         }
-      }
-    );
+      });
+    });
   } catch (error) {
     console.log(error);
   }
+});
+
+// GET route to fetch employee data
+router.get("/employees", (req: Request, res: Response) => {
+  const sql = "SELECT * FROM employee";
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(200).json(result);
+  });
 });
 
 export default router;

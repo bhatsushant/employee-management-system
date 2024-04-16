@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import db from "./db";
-import RandExp from "randexp";
 
 const generateEmployeeData = () => {
   const employees = [];

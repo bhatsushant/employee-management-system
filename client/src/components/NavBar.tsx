@@ -26,6 +26,7 @@ export default function Navbar() {
     if (path === "logout") {
       await signOutUser();
       setCurrentUser(null);
+      navigate("/");
     } else {
       navigate(path);
     }

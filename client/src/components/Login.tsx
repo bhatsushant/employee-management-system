@@ -25,7 +25,7 @@ const Login = () => {
         password
       });
 
-      navigate("/employee");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
     }

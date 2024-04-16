@@ -51,9 +51,9 @@ const generateAdminData = () => {
   };
 };
 
-const seed = async () => {
+const seed = () => {
   try {
-    await db.query(`
+    db.query(`
       CREATE TABLE IF NOT EXISTS employee (
         emp_id VARCHAR(150) PRIMARY KEY,
         first_name VARCHAR(255),
@@ -68,14 +68,14 @@ const seed = async () => {
       )
     `);
 
-    await db.query(`
-      CREATE TABLE IF NOT EXISTS department (
-        dept_id VARCHAR(150) PRIMARY KEY,
-        dept_name VARCHAR(255)
-      )
-    `);
+    // await db.query(`
+    //   CREATE TABLE IF NOT EXISTS department (
+    //     dept_id VARCHAR(150) PRIMARY KEY,
+    //     dept_name VARCHAR(255)
+    //   )
+    // `);
 
-    await db.query(`
+    db.query(`
       CREATE TABLE IF NOT EXISTS admin (
         admin_id VARCHAR(150) PRIMARY KEY,
         admin_firstName VARCHAR(255),
@@ -94,14 +94,14 @@ const seed = async () => {
     //   departments.map(department => Object.values(department))
     // ]);
 
-    await db.query(
+    db.query(
       "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, image, isadmin) VALUES ?",
       [employees.map(employee => Object.values(employee))]
     );
 
     const admin = generateAdminData();
 
-    await db.query(
+    db.query(
       "INSERT INTO admin (admin_id, admin_firstName, admin_lastName, admin_email, admin_password, isAdmin) VALUES (?, ?, ?, ?, ?, ?)",
       Object.values(admin)
     );

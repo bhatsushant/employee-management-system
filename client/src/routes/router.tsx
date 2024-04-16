@@ -1,47 +1,39 @@
-import { EmployeeForm } from "@/components/EmployeeForm";
-import { EmployeeTable } from "@/components/EmployeeTable";
-import Login from "@/components/Login";
-import NavBar from "@/components/NavBar";
+import { EmployeeForm } from "@/pages/EmployeeForm";
+import { EmployeeTable } from "@/pages/EmployeeTable";
+import Login from "@/pages/Login";
+import Navbar from "@/components/Navbar";
 import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
+import { useAuth } from "@/contexts/UserContext";
 
-// export const router = createBrowserRouter([
-//   {
-//     path: "*",
-//     element: <Navigate to="/auth" />
-//   },
-//   {
-//     path: "/",
-//     element: <Login />
-//   },
-//   {
-//     path: "/dashboard",
-//     element: <EmployeeTable />
-//   },
-//   {
-//     path: "/employee_form",
-//     element: <EmployeeForm />
-//   }
-// ]);
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated } = useAuth();
+  console.log(isAuthenticated);
+
+  return isAuthenticated ? children : <Navigate to="/" />;
+};
 
 export const router = createBrowserRouter([
   { path: "*", element: <Navigate to="/" /> },
+  { path: "/", element: <Login /> },
   {
     path: "/",
-    element: <Login />
-  },
-  {
     element: <NavLayout />,
-    errorElement: (
-      <h1>Shucks! Someone's writing some erroneous code aren't they?</h1>
-    ),
     children: [
       {
-        path: "/dashboard",
-        element: <EmployeeTable />
+        path: "dashboard",
+        element: (
+          <ProtectedRoute>
+            <EmployeeTable />
+          </ProtectedRoute>
+        )
       },
       {
-        path: "/employee_form",
-        element: <EmployeeForm />
+        path: "employee_form",
+        element: (
+          <ProtectedRoute>
+            <EmployeeForm />
+          </ProtectedRoute>
+        )
       }
     ]
   }
@@ -49,8 +41,8 @@ export const router = createBrowserRouter([
 
 function NavLayout() {
   return (
-    <div className="flex">
-      <NavBar />
+    <div className="flex gap-x-48">
+      <Navbar />
       <Outlet />
     </div>
   );

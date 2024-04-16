@@ -1,8 +1,15 @@
 import { EmployeeForm } from "@/components/EmployeeForm";
 import { EmployeeTable } from "@/components/EmployeeTable";
 import Login from "@/components/Login";
-import { NavBar } from "@/components/NavBar";
+import NavBar, { NavbarItem } from "@/components/NavBar";
 import { Navigate, createBrowserRouter } from "react-router-dom";
+import {
+  Menu,
+  Gauge,
+  CircleUserRound,
+  UserRoundCog,
+  LogOut
+} from "lucide-react";
 
 export const router = createBrowserRouter([
   {
@@ -15,7 +22,21 @@ export const router = createBrowserRouter([
   },
   {
     path: "/navigation",
-    element: <NavBar />
+    element: (
+      <NavBar>
+        <NavbarItem icon={<Menu size={20} />} text="Menu" active></NavbarItem>
+        <NavbarItem icon={<Gauge size={20} />} text="Dashboard"></NavbarItem>
+        <NavbarItem
+          icon={<UserRoundCog size={20} />}
+          text="Add Employee"
+        ></NavbarItem>
+        <NavbarItem
+          icon={<CircleUserRound size={20} />}
+          text="Profile"
+        ></NavbarItem>
+        <NavbarItem icon={<LogOut size={20} />} text="Logout"></NavbarItem>
+      </NavBar>
+    )
   },
   {
     path: "/dashboard",

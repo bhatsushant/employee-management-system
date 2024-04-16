@@ -10,26 +10,28 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setCurrentUser } = useAuth();
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:3000/auth", {
+      const { data } = await axios.post("http://localhost:3000/auth", {
         email,
         password
       });
+      setCurrentUser(data?.currentUser);
+      localStorage.setItem("user", JSON.stringify(data?.currentUser));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
     }
   };
 
-  const { setCurrentUser } = useAuth();
-
   const handleSignInWithGoogle = async () => {
     try {
       const { user } = await signInWithGooglePopup();
       setCurrentUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed with Google", error);

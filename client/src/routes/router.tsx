@@ -3,17 +3,13 @@ import { EmployeeTable } from "@/pages/EmployeeTable";
 import Login from "@/pages/Login";
 import Navbar from "@/components/Navbar";
 import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
-import { useAuth } from "@/contexts/UserContext";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated);
-
-  return isAuthenticated ? children : <Navigate to="/" />;
+  return localStorage.getItem("user") ? children : <Navigate to="/" replace />;
 };
 
 export const router = createBrowserRouter([
-  { path: "*", element: <Navigate to="/" /> },
+  { path: "*", element: <Navigate to="/" replace /> },
   { path: "/", element: <Login /> },
   {
     path: "/",

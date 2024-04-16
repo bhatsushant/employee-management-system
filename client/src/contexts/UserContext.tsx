@@ -5,26 +5,34 @@ import {
   useContext,
   ReactNode
 } from "react";
-import { onAuthStateChangedListener } from "../utils/firebase";
+import { onAuthStateChanged, getAuth } from "firebase/auth";
+
+const auth = getAuth();
 
 interface UserContextType {
   currentUser: any;
   setCurrentUser: (user: any) => void;
-  isAuthenticated: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
   currentUser: null,
-  setCurrentUser: () => {},
-  isAuthenticated: false
+  setCurrentUser: () => {}
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChangedListener(user => {
-      setCurrentUser(user);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+        setCurrentUser(user);
+      }
     });
 
     return () => unsubscribe();
@@ -34,8 +42,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     <UserContext.Provider
       value={{
         currentUser,
-        setCurrentUser,
-        isAuthenticated: Boolean(currentUser)
+        setCurrentUser
       }}
     >
       {children}

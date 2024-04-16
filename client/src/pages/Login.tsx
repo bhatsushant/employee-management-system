@@ -1,37 +1,40 @@
 import React, { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { signInWithGooglePopup } from "@/utils/firebase";
+import { useAuth } from "@/contexts/UserContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/auth", {
+      await axios.post("http://localhost:3000/auth", {
         email,
         password
       });
-
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
     }
   };
 
-  const handleSignInWithGoogle = async () => {};
+  const { setCurrentUser } = useAuth();
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      const { user } = await signInWithGooglePopup();
+      setCurrentUser(user);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login failed with Google", error);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -42,7 +45,7 @@ const Login = () => {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={handleEmailChange}
+            onChange={e => setEmail(e.target.value)}
             required
           />
         </div>
@@ -51,7 +54,7 @@ const Login = () => {
             type="password"
             placeholder="Password"
             value={password}
-            onChange={handlePasswordChange}
+            onChange={e => setPassword(e.target.value)}
             required
           />
         </div>

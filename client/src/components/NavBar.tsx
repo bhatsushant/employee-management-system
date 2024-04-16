@@ -1,14 +1,15 @@
 import { createContext, useState, useContext, ReactNode } from "react";
 import {
-  MoreVertical,
   ChevronLast,
   ChevronFirst,
-  Menu,
   Gauge,
   CircleUserRound,
   UserRoundCog,
   LogOut
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/UserContext";
+import { signOutUser } from "@/utils/firebase";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -16,23 +17,27 @@ type SidebarContextType = {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-export default function NavBar() {
+export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
+  const { setCurrentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleNavigation = async (path: string) => {
+    if (path === "logout") {
+      await signOutUser();
+      setCurrentUser(null);
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
-    <aside className="h-screen w-1/5">
+    <aside className="h-screen">
       <nav className="h-full flex flex-col bg-gray-800 border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
-          <img
-            src="https://img.logoipsum.com/243.svg"
-            className={`overflow-hidden transition-all ${
-              expanded ? "w-32" : "w-0"
-            }`}
-            alt=""
-          />
           <button
             onClick={() => setExpanded(curr => !curr)}
-            className="p-1.5 rounded-lg bg-gray-700 hover:bg-gray-600"
+            className="p-1.5 rounded-lg dark-bg-slate-800 hover:bg-gray-600"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>
@@ -41,45 +46,29 @@ export default function NavBar() {
         <SidebarContext.Provider value={{ expanded }}>
           <ul className="flex-1 px-3">
             <NavbarItem
-              icon={<Menu size={20} />}
-              text="Menu"
-              active
-            ></NavbarItem>
-            <NavbarItem
               icon={<Gauge size={20} />}
               text="Dashboard"
-            ></NavbarItem>
+              onClick={() => handleNavigation("/dashboard")}
+            />
             <NavbarItem
               icon={<UserRoundCog size={20} />}
               text="Add Employee"
-            ></NavbarItem>
+              onClick={() => handleNavigation("/employee_form")}
+            />
             <NavbarItem
               icon={<CircleUserRound size={20} />}
               text="Profile"
-            ></NavbarItem>
-            <NavbarItem icon={<LogOut size={20} />} text="Logout"></NavbarItem>
+              onClick={() => handleNavigation("/employee_form")}
+            />
+            <NavbarItem
+              icon={<LogOut size={20} />}
+              text="Logout"
+              onClick={() => handleNavigation("logout")}
+            />
           </ul>
         </SidebarContext.Provider>
 
-        <div className="border-t flex p-3">
-          <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-            alt=""
-            className="w-10 h-10 rounded-md"
-          />
-          <div
-            className={`
-              flex justify-between items-center
-              overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}
-          `}
-          >
-            <div className="leading-4">
-              <h4 className="font-semibold text-gray-100">John Doe</h4>
-              <span className="text-xs text-gray-400">johndoe@gmail.com</span>
-            </div>
-            <MoreVertical size={20} />
-          </div>
-        </div>
+        <div className="border-t flex p-3"></div>
       </nav>
     </aside>
   );
@@ -88,11 +77,13 @@ export default function NavBar() {
 export function NavbarItem({
   icon,
   text,
+  onClick,
   active,
   alert
 }: {
   icon: ReactNode;
   text: string;
+  onClick?: () => void;
   active?: boolean;
   alert?: boolean;
 }) {
@@ -109,7 +100,8 @@ export function NavbarItem({
             ? "bg-gradient-to-tr from-indigo-700 to-indigo-600 text-indigo-100"
             : "hover:bg-indigo-600 text-gray-100"
         }
-    `}
+      `}
+      onClick={onClick}
     >
       {icon}
       <span

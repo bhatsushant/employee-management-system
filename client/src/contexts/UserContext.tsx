@@ -2,33 +2,45 @@ import {
   createContext,
   useState,
   useEffect,
-  ReactNode,
-  Dispatch,
-  SetStateAction
+  useContext,
+  ReactNode
 } from "react";
 import { onAuthStateChangedListener } from "../utils/firebase";
 
 interface UserContextType {
   currentUser: any;
-  setCurrentUser: Dispatch<SetStateAction<any>>;
+  setCurrentUser: (user: any) => void;
+  isAuthenticated: boolean;
 }
 
-export const UserContext = createContext<UserContextType>({
+const UserContext = createContext<UserContextType>({
   currentUser: null,
-  setCurrentUser: () => {} // Adjusted to an empty function
+  setCurrentUser: () => {},
+  isAuthenticated: false
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const value: UserContextType = { currentUser, setCurrentUser };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChangedListener(user => {
       setCurrentUser(user);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider
+      value={{
+        currentUser,
+        setCurrentUser,
+        isAuthenticated: Boolean(currentUser)
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(UserContext);

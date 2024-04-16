@@ -1,5 +1,14 @@
 import { createContext, useState, useContext, ReactNode } from "react";
-import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react";
+import {
+  MoreVertical,
+  ChevronLast,
+  ChevronFirst,
+  Menu,
+  Gauge,
+  CircleUserRound,
+  UserRoundCog,
+  LogOut
+} from "lucide-react";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -7,7 +16,7 @@ type SidebarContextType = {
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
-export default function NavBar({ children }: { children: ReactNode }) {
+export default function NavBar() {
   const [expanded, setExpanded] = useState(true);
 
   return (
@@ -30,7 +39,26 @@ export default function NavBar({ children }: { children: ReactNode }) {
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">{children}</ul>
+          <ul className="flex-1 px-3">
+            <NavbarItem
+              icon={<Menu size={20} />}
+              text="Menu"
+              active
+            ></NavbarItem>
+            <NavbarItem
+              icon={<Gauge size={20} />}
+              text="Dashboard"
+            ></NavbarItem>
+            <NavbarItem
+              icon={<UserRoundCog size={20} />}
+              text="Add Employee"
+            ></NavbarItem>
+            <NavbarItem
+              icon={<CircleUserRound size={20} />}
+              text="Profile"
+            ></NavbarItem>
+            <NavbarItem icon={<LogOut size={20} />} text="Logout"></NavbarItem>
+          </ul>
         </SidebarContext.Provider>
 
         <div className="border-t flex p-3">

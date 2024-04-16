@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "seed": "tsx ./src/utils/seed.ts"
   },
   "keywords": [],
   "author": "Sushant Bhat",
@@ -24,6 +25,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@types/cors": "^2.8.17",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",

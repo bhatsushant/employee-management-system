@@ -1,5 +1,6 @@
 import * as React from "react";
 import axios from "axios";
+import Papa from "papaparse";
 import {
   ColumnDef,
   flexRender,
@@ -9,6 +10,8 @@ import {
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table";
+
+import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +31,8 @@ export type Employee = {
   email: string;
   address: string;
 };
+
+const isAdmin = false;
 
 const columns: ColumnDef<Employee>[] = [
   {
@@ -60,17 +65,21 @@ const columns: ColumnDef<Employee>[] = [
     header: "Address",
     cell: ({ row }) => <div>{row.getValue("address")}</div>
   },
-  {
-    id: "actions",
-    header: "Actions",
-    enableHiding: false,
-    cell: () => (
-      <div className="flex justify-center space-x-2">
-        <Button variant="ghost">Edit</Button>
-        <Button variant="ghost">Delete</Button>
-      </div>
-    )
-  }
+  ...(isAdmin
+    ? [
+        {
+          id: "actions",
+          header: "Actions",
+          enableHiding: false,
+          cell: () => (
+            <div className="flex justify-center space-x-2">
+              <Button variant="ghost">Edit</Button>
+              <Button variant="ghost">Delete</Button>
+            </div>
+          )
+        }
+      ]
+    : [])
 ];
 
 export function EmployeeTable() {
@@ -89,6 +98,29 @@ export function EmployeeTable() {
     };
     fetchData();
   }, []);
+
+  const downloadCSV = () => {
+    const csv = Papa.unparse(data, {
+      columns: [
+        "emp_id",
+        "first_name",
+        "last_name",
+        "dept",
+        "phone",
+        "email",
+        "address"
+      ]
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "employees.csv";
+    link.click();
+
+    window.URL.revokeObjectURL(url);
+  };
 
   const table = useReactTable({
     data,
@@ -157,6 +189,26 @@ export function EmployeeTable() {
                 )}
               </TableBody>
             </Table>
+          </div>
+          <Button onClick={downloadCSV}>Download CSV</Button>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+                      
           </div>
         </div>
       </div>

@@ -45,8 +45,7 @@ const generateAdminData = () => {
     admin_firstName: faker.person.firstName(),
     admin_lastName: faker.person.lastName(),
     admin_email: faker.internet.email(),
-    admin_password: faker.internet.password(),
-    isAdmin: faker.datatype.boolean(1)
+    admin_password: faker.internet.password()
   };
 };
 
@@ -80,8 +79,7 @@ const seed = () => {
         admin_firstName VARCHAR(255),
         admin_lastName VARCHAR(255),
         admin_email VARCHAR(255),
-        admin_password VARCHAR(255),
-        isAdmin BOOLEAN
+        admin_password VARCHAR(255)
       )
     `);
 
@@ -101,7 +99,7 @@ const seed = () => {
     const admin = generateAdminData();
 
     db.query(
-      "INSERT INTO admin (admin_id, admin_firstName, admin_lastName, admin_email, admin_password, isAdmin) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO admin (admin_id, admin_firstName, admin_lastName, admin_email, admin_password) VALUES (?, ?, ?, ?, ?)",
       Object.values(admin)
     );
 

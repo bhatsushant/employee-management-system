@@ -23,7 +23,8 @@ router.post("/", (req: Request, res: Response) => {
         return res.status(400).json({ loginStatus: false, message: err });
       } else {
         if (result.length > 0) {
-          const email = result[0].email;
+          const { email, admin_firstName, admin_lastName, admin_id } =
+            result[0];
           const token = jwt.sign({ role: "admin", email: email }, sec, {
             expiresIn: "1d"
           });
@@ -33,9 +34,11 @@ router.post("/", (req: Request, res: Response) => {
             sameSite: "none"
           });
 
-          return res
-            .status(200)
-            .json({ loginStatus: true, message: "Login successful" });
+          return res.status(200).json({
+            loginStatus: true,
+            message: "Login successful",
+            currentUser: { email, admin_firstName, admin_lastName, admin_id }
+          });
         } else {
           res
             .status(400)

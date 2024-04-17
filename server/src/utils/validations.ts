@@ -12,6 +12,7 @@ export function isEmail(email: string) {
   if (!validator.isEmail(email)) {
     throwError(ErrorCode.BAD_REQUEST, "Error: Email not valid.");
   }
+  return "Valid email";
 }
 
 export function isStringEmpty(string: string, variableName: string) {
@@ -21,6 +22,7 @@ export function isStringEmpty(string: string, variableName: string) {
       `Error: Empty string passed for ${variableName || "provided variable"}.`
     );
   }
+  return "String is not empty";
 }
 
 export function isPasswordValid(password: string) {
@@ -31,6 +33,7 @@ export function isPasswordValid(password: string) {
       "Error: Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number."
     );
   }
+  return "Valid password";
 }
 
 export function isPhoneValid(phone: string) {
@@ -38,12 +41,14 @@ export function isPhoneValid(phone: string) {
   if (!phoneRegex.test(phone)) {
     throwError(ErrorCode.BAD_REQUEST, "Error: Invalid phone format.");
   }
+  return "Valid phone number";
 }
 
 export function isDateValid(date: string) {
   if (!validator.isDate(date)) {
     throwError(ErrorCode.BAD_REQUEST, "Error: Invalid date format.");
   }
+  return "Valid date";
 }
 
 export function isNumberValid(num: number, variableName: string) {
@@ -53,6 +58,7 @@ export function isNumberValid(num: number, variableName: string) {
       `Error: ${variableName || "Provided variable"} is not a number.`
     );
   }
+  return "Valid number";
 }
 
 export const throwError = (

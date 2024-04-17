@@ -34,6 +34,8 @@ const ADMIN = {
 router
   .route("/")
   .post((req: Request, res: Response) => {
+    let { salary } = req.body;
+    salary = parseInt(salary);
     let {
       first_name,
       last_name,
@@ -45,8 +47,7 @@ router
       date_of_birth,
       start_date,
       position,
-      supervisor,
-      salary
+      supervisor
     }: IEmployee = req.body;
 
     email = email.toLowerCase();
@@ -108,6 +109,7 @@ router
 
       db.query(sql, [employee], (err, result) => {
         if (err) {
+          console.log(err);
           return res.status(400).json({ status: false, message: err });
         }
 
@@ -135,6 +137,8 @@ router
 // Update employee
 router.put("/:id", (req: Request, res: Response) => {
   const { id } = req.params;
+  let { salary } = req.body;
+  salary = parseInt(salary);
   const {
     first_name,
     last_name,
@@ -146,8 +150,7 @@ router.put("/:id", (req: Request, res: Response) => {
     date_of_birth,
     start_date,
     position,
-    supervisor,
-    salary
+    supervisor
   }: IEmployee = req.body;
 
   validations.isEmail(email);

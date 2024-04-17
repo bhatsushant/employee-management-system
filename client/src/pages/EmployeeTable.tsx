@@ -3,15 +3,20 @@ import axios from "axios";
 import Papa from "papaparse";
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
+  useReactTable,
+  SortingState
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -35,13 +40,31 @@ const isAdmin = false;
 const columns: ColumnDef<Employee>[] = [
   {
     accessorKey: "first_name",
-    header: "First Name",
-    cell: ({ row }) => <div>{row.getValue("first_name")}</div>
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          First Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    }
   },
   {
     accessorKey: "last_name",
-    header: "Last Name",
-    cell: ({ row }) => <div>{row.getValue("last_name")}</div>
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    }
   },
   {
     accessorKey: "dept",
@@ -82,6 +105,10 @@ const columns: ColumnDef<Employee>[] = [
 
 export function EmployeeTable() {
   const [data, setData] = React.useState<Employee[]>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -126,87 +153,103 @@ export function EmployeeTable() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel()
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+      columnFilters
+    }
   });
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="w-full flex justify-center px-4">
-        <div className="w-full max-w-screen-lg">
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map(header => {
-                      return (
-                        <TableHead
-                          key={header.id}
-                          className={
-                            header.id === "actions" ? "text-center" : ""
-                          }
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map(row => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
+    <div className="flex flex-col py-4">
+      <Input
+        placeholder="Filter department..."
+        value={(table.getColumn("dept")?.getFilterValue() as string) ?? ""}
+        onChange={event =>
+          table.getColumn("dept")?.setFilterValue(event.target.value)
+        }
+        className="max-w-sm"
+      />
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex justify-center px-4 py-4"></div>
+        <div className="flex items-center py-4">
+          <div className=" max-w-screen-lg">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map(header => {
+                        return (
+                          <TableHead
+                            key={header.id}
+                            className={
+                              header.id === "actions" ? "text-center" : ""
+                            }
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        );
+                      })}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          <Button onClick={downloadCSV}>Download CSV</Button>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-                      
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map(row => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map(cell => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <Button onClick={downloadCSV}>Download CSV</Button>
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>

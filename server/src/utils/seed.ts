@@ -37,7 +37,7 @@ const generateEmployeeData = () => {
       start_date: faker.date.soon(),
       position: faker.person.jobTitle(),
       supervisor: faker.person.fullName(),
-      salary: faker.string.numeric({ length: { min: 30, max: 15000 } }),
+      salary: faker.string.numeric({ length: { min: 5, max: 7 } }),
       image: faker.image.avatar(),
       isadmin: ADMIN.no
     };
@@ -67,6 +67,7 @@ const generateAdminData = () => {
 
 const seed = () => {
   try {
+    db.query(`DROP TABLE IF EXISTS employee`);
     db.query(`
       CREATE TABLE IF NOT EXISTS employee (
         emp_id VARCHAR(150) PRIMARY KEY,
@@ -86,18 +87,6 @@ const seed = () => {
         isadmin BOOLEAN
       )
     `);
-
-    db.query(`
-      CREATE TABLE IF NOT EXISTS admin (
-        admin_id VARCHAR(150) PRIMARY KEY,
-        admin_firstName VARCHAR(255),
-        admin_lastName VARCHAR(255),
-        admin_email VARCHAR(255),
-        admin_password VARCHAR(255)
-      )
-    `);
-
-    db.query("TRUNCATE TABLE admin;");
 
     db.query("TRUNCATE TABLE employee;");
 

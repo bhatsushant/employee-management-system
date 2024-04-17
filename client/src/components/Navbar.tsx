@@ -27,8 +27,7 @@ export default function Navbar() {
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
       await signOutUser();
-      await axios.post("http://localhost:3000/employees/logout");
-      localStorage.removeItem("verifiedUser");
+      await axios.post("http://localhost:3000/auth/logout");
       setCurrentUser(null);
       navigate("/");
     } else {

@@ -55,6 +55,14 @@ router.post("/", (req: Request, res: Response) => {
           .json({ loginStatus: false, message: "Invalid email or password" });
       }
 
+      req.session.user = {
+        email: result[0].email,
+        first_name: result[0].first_name,
+        last_name: result[0].last_name,
+        emp_id: result[0].emp_id,
+        isAdmin: !!result[0].isadmin
+      };
+
       const token = jwt.sign({ role: "admin", email: email }, sec, {
         expiresIn: "1d"
       });
@@ -86,6 +94,30 @@ router.post("/", (req: Request, res: Response) => {
         message: error.message || "Error: Internal server error."
       });
   }
+});
+
+router.get("/session", (req, res) => {
+  console.log(req.session.user);
+  if (req.session.user) {
+    return res.status(200).json({
+      isAuthenticated: true,
+      user: req.session.user
+    });
+  } else {
+    return res.status(200).json({
+      isAuthenticated: false
+    });
+  }
+});
+
+router.post("/logout", (req: Request, res: Response) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: "Failed to logout" });
+    }
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Logout successful" });
+  });
 });
 
 export default router;

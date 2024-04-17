@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { signInWithGooglePopup } from "@/utils/firebase";
 import { useAuth } from "@/contexts/UserContext";
+import { checkAuth } from "@/utils/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");

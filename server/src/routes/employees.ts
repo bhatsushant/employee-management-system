@@ -293,11 +293,6 @@ router.put("/delete_employee/:id", (req: Request, res: Response) => {
   });
 });
 
-router.post("/logout", (req: Request, res: Response) => {
-  res.clearCookie("token");
-  return res.status(200).json({ message: "Logout successful" });
-});
-
 // image upload
 const storage = multer.diskStorage({
   destination: "./public/uploads/",

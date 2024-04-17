@@ -3,8 +3,26 @@ import { EmployeeTable } from "@/pages/EmployeeTable";
 import Login from "@/pages/Login";
 import Navbar from "@/components/Navbar";
 import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
+import { checkAuth } from "@/utils/auth";
+import { useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function verifyAuthentication() {
+      const authStatus = await checkAuth();
+      setIsAuthenticated(authStatus);
+      setIsLoading(false);
+    }
+
+    verifyAuthentication();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return localStorage.getItem("verifiedUser") ? (
     children
   ) : (

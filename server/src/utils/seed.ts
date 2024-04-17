@@ -37,7 +37,7 @@ const generateEmployeeData = () => {
       start_date: faker.date.soon(),
       position: faker.person.jobTitle(),
       supervisor: faker.person.fullName(),
-      salary: faker.string.numeric({ length: { min: 5, max: 10 } }),
+      salary: faker.string.numeric({ length: { min: 30, max: 15000 } }),
       image: faker.image.avatar(),
       isadmin: ADMIN.no
     };

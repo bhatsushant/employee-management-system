@@ -62,8 +62,6 @@ router
     validations.isStringEmpty(position, "position");
     validations.isStringEmpty(supervisor, "supervisor");
     validations.isNumberValid(salary, "salary");
-    validations.isPasswordValid(password);
-    validations.isPhoneValid(phone);
     validations.isDateValid(date_of_birth);
     validations.isDateValid(start_date);
 
@@ -80,13 +78,13 @@ router
       if (result.length > 0) {
         return res.status(400).json({
           status: false,
-          message: "Employee with given email already exists"
+          message: "Employee with given email already exists" + err!.message
         });
       }
     });
 
     const sql =
-      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary isadmin) VALUES (?)";
+      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try {
       const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
 
@@ -107,9 +105,8 @@ router
         ADMIN.no
       ];
 
-      db.query(sql, [employee], (err, result) => {
+      db.query(sql, [...employee], (err, result) => {
         if (err) {
-          console.log(err);
           return res.status(400).json({ status: false, message: err });
         }
 
@@ -118,7 +115,8 @@ router
           .json({ status: true, message: "Employee added successfully" });
       });
     } catch (error) {
-      console.log(error);
+      res.status(500).json({ status: false, message: error });
+      return error;
     }
   })
   .get((req: Request, res: Response) => {

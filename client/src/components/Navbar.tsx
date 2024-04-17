@@ -21,9 +21,8 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
-  const { currentUser, setCurrentUser } = useAuth();
+  const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
-  console.log(currentUser?.email, currentUser);
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {

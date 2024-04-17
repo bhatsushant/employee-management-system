@@ -135,102 +135,127 @@ router
   });
 
 // Update employee
-router.put("/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
-  let { salary } = req.body;
-  let {
-    first_name,
-    last_name,
-    dept,
-    phone,
-    email,
-    password,
-    address,
-    date_of_birth,
-    start_date,
-    position,
-    supervisor,
-    image
-  }: IEmployee = req.body;
+router
+  .route("/:id")
+  .get((req: Request, res: Response) => {
+    const { id } = req.params;
 
-  salary = parseInt(salary);
-  email = email.toLowerCase();
+    validations.isStringEmpty(id, "employee id");
 
-  validations.isEmail(email);
-  validations.isStringEmpty(first_name, "first name");
-  validations.isStringEmpty(last_name, "last name");
-  validations.isStringEmpty(dept, "department");
-  validations.isStringEmpty(address, "address");
-  validations.isPasswordValid(password);
-  validations.isPhoneValid(phone);
-  validations.isStringEmpty(position, "position");
-  validations.isStringEmpty(supervisor, "supervisor");
-  validations.isNumberValid(salary, "salary");
-  validations.isDateValid(date_of_birth);
-  validations.isDateValid(start_date);
-  validations.isStringEmpty(image, "image");
+    const sql = "SELECT * FROM employee WHERE emp_id = ? LIMIT 1";
 
-  // Check if employee exists before updating
-  const checkSql = "SELECT email FROM employee WHERE emp_id = ? LIMIT 1;";
+    db.query(sql, [id], (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ status: false, message: "Internal server error" });
+      }
 
-  db.query(checkSql, [id], (err, result) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ status: false, message: "Internal server error" });
-    }
+      if (result.length === 0) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Employee not found" });
+      }
 
-    if (result.length === 0) {
-      return res
-        .status(404)
-        .json({ status: false, message: "Employee not found" });
-    }
-
-    const { isadmin } = result[0];
-
-    if (isadmin === ADMIN.yes) {
-      return res
-        .status(403)
-        .json({ status: false, message: "Invalid Request" });
-    }
-  });
-
-  const sql =
-    "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, password = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
-
-  try {
-    const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-
-    const employee = [
+      return res.status(200).json(result[0]);
+    });
+  })
+  .put((req: Request, res: Response) => {
+    const { id } = req.params;
+    let { salary } = req.body;
+    let {
       first_name,
       last_name,
       dept,
       phone,
       email,
-      hashedPassword,
+      password,
       address,
       date_of_birth,
       start_date,
       position,
       supervisor,
-      salary,
-      image,
-      ADMIN.no
-    ];
+      image
+    }: IEmployee = req.body;
 
-    db.query(sql, [...employee, id], err => {
+    salary = parseInt(salary);
+    email = email.toLowerCase();
+
+    validations.isEmail(email);
+    validations.isStringEmpty(first_name, "first name");
+    validations.isStringEmpty(last_name, "last name");
+    validations.isStringEmpty(dept, "department");
+    validations.isStringEmpty(address, "address");
+    validations.isPasswordValid(password);
+    validations.isPhoneValid(phone);
+    validations.isStringEmpty(position, "position");
+    validations.isStringEmpty(supervisor, "supervisor");
+    validations.isNumberValid(salary, "salary");
+    validations.isDateValid(date_of_birth);
+    validations.isDateValid(start_date);
+    validations.isStringEmpty(image, "image");
+
+    // Check if employee exists before updating
+    const checkSql = "SELECT email FROM employee WHERE emp_id = ? LIMIT 1;";
+
+    db.query(checkSql, [id], (err, result) => {
       if (err) {
-        return res.status(400).json({ status: false, message: err });
+        return res
+          .status(500)
+          .json({ status: false, message: "Internal server error" });
       }
 
-      return res
-        .status(200)
-        .json({ status: true, message: "Employee updated successfully" });
+      if (result.length === 0) {
+        return res
+          .status(404)
+          .json({ status: false, message: "Employee not found" });
+      }
+
+      const { isadmin } = result[0];
+
+      if (isadmin === ADMIN.yes) {
+        return res
+          .status(403)
+          .json({ status: false, message: "Invalid Request" });
+      }
     });
-  } catch (error) {
-    console.log(error);
-  }
-});
+
+    const sql =
+      "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, password = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
+
+    try {
+      const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
+
+      const employee = [
+        first_name,
+        last_name,
+        dept,
+        phone,
+        email,
+        hashedPassword,
+        address,
+        date_of_birth,
+        start_date,
+        position,
+        supervisor,
+        salary,
+        image,
+        ADMIN.no
+      ];
+
+      db.query(sql, [...employee, id], err => {
+        if (err) {
+          return res.status(400).json({ status: false, message: err });
+        }
+
+        return res
+          .status(200)
+          .json({ status: true, message: "Employee updated successfully" });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
 // Delete employee
 router.put("/delete_employee/:id", (req: Request, res: Response) => {

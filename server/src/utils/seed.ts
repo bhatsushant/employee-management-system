@@ -33,6 +33,11 @@ const generateEmployeeData = () => {
       email: faker.internet.email().toLowerCase(),
       password: defaultEmployeeHashedPassword,
       address: faker.location.streetAddress(),
+      date_of_birth: faker.date.birthdate(),
+      start_date: faker.date.soon(),
+      position: faker.person.jobTitle(),
+      supervisor: faker.person.fullName(),
+      salary: faker.string.numeric({ length: { min: 5, max: 10 } }),
       image: faker.image.avatar(),
       isadmin: ADMIN.no
     };
@@ -72,6 +77,11 @@ const seed = () => {
         email VARCHAR(255),
         password VARCHAR(255),
         address VARCHAR(255),
+        date_of_birth DATE,
+        start_date DATE,
+        position VARCHAR(255),
+        supervisor VARCHAR(255),
+        salary DECIMAL(10, 2),
         image VARCHAR(255),
         isadmin BOOLEAN
       )

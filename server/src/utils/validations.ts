@@ -40,6 +40,21 @@ export function isPhoneValid(phone: string) {
   }
 }
 
+export function isDateValid(date: string) {
+  if (!validator.isDate(date)) {
+    throwError(ErrorCode.BAD_REQUEST, "Error: Invalid date format.");
+  }
+}
+
+export function isNumberValid(num: number, variableName: string) {
+  if (isNaN(num)) {
+    throwError(
+      ErrorCode.BAD_REQUEST,
+      `Error: ${variableName || "Provided variable"} is not a number.`
+    );
+  }
+}
+
 export const throwError = (
   code = 500,
   message = "Error: Internal server error"

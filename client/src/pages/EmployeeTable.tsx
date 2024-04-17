@@ -15,7 +15,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
 import {
   Table,
@@ -113,9 +113,7 @@ export function EmployeeTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/auth/employees"
-        );
+        const response = await axios.get("http://localhost:3000/employees");
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);

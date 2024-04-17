@@ -20,7 +20,6 @@ export function EmployeeForm() {
   const form = useForm<Employee>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
-      username: "",
       email: "",
       firstName: "",
       lastName: "",
@@ -43,11 +42,9 @@ export function EmployeeForm() {
       const newEmployee = await createEmployee(data);
       console.log("returned data from api", newEmployee);
       if (newEmployee) {
-        // Optionally, perform any additional actions after creating the employee
         console.log("Employee created successfully!");
       }
     } catch (error) {
-      // Handle errors if necessary
       console.error("Error creating employee:", error);
     }
   };
@@ -56,39 +53,6 @@ export function EmployeeForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
         <div className="flex flex-wrap max-w-screen-sm gap-6 mx-auto my-16">
-          {/* Username field */}
-          <div className="w-1/3">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="username" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Email field */}
-          <div className="w-1/2 ml-8">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="example@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
           {/* First Name field */}
           <FormField
             control={form.control}
@@ -118,6 +82,22 @@ export function EmployeeForm() {
               </FormItem>
             )}
           />
+          {/* Email field */}
+          <div className="w-1/2 ml-8">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="example@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {/* Phone Number field */}
           <FormField
             control={form.control}

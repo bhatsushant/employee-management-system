@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/UserContext";
 import { signOutUser } from "@/utils/firebase";
+import axios from "axios";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -27,6 +28,8 @@ export default function Navbar() {
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
       await signOutUser();
+      await axios.post("http://localhost:3000/auth/logout");
+      localStorage.removeItem("verifiedUser");
       setCurrentUser(null);
       navigate("/");
     } else {

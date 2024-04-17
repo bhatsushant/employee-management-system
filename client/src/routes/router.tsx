@@ -5,7 +5,11 @@ import Navbar from "@/components/Navbar";
 import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  return localStorage.getItem("user") ? children : <Navigate to="/" replace />;
+  return localStorage.getItem("verifiedUser") ? (
+    children
+  ) : (
+    <Navigate to="/" replace />
+  );
 };
 
 export const router = createBrowserRouter([

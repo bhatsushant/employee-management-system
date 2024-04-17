@@ -19,8 +19,7 @@ const Login = () => {
         email,
         password
       });
-      setCurrentUser(data?.currentUser);
-      localStorage.setItem("user", JSON.stringify(data?.currentUser));
+      localStorage.setItem("verifiedUser", "true");
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
@@ -31,7 +30,7 @@ const Login = () => {
     try {
       const { user } = await signInWithGooglePopup();
       setCurrentUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("verifiedUser", "true");
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed with Google", error);

@@ -139,12 +139,10 @@ router.post("/add_employee", (req: Request, res: Response) => {
     }
 
     if (result.length > 0) {
-      return res
-        .status(400)
-        .json({
-          status: false,
-          message: "Employee with given email already exists"
-        });
+      return res.status(400).json({
+        status: false,
+        message: "Employee with given email already exists"
+      });
     }
   });
 
@@ -310,6 +308,11 @@ router.delete("/delete_employee/:id", (req: Request, res: Response) => {
       .status(200)
       .json({ status: true, message: "Employee deleted successfully" });
   });
+});
+
+router.post("/logout", (req: Request, res: Response) => {
+  res.clearCookie("token");
+  return res.status(200).json({ message: "Logout successful" });
 });
 
 // image upload

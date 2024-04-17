@@ -23,15 +23,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    }
-
     const unsubscribe = onAuthStateChanged(auth, user => {
       if (user) {
-        localStorage.setItem("user", JSON.stringify(user));
         setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
       }
     });
 

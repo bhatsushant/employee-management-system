@@ -39,7 +39,8 @@ const generateEmployeeData = () => {
       supervisor: faker.person.fullName(),
       salary: faker.string.numeric({ length: { min: 5, max: 7 } }),
       image: faker.image.avatar(),
-      isadmin: ADMIN.no
+      isadmin: ADMIN.no,
+      isEmployed: true
     };
     employees.push(employee);
   }
@@ -49,20 +50,36 @@ const generateEmployeeData = () => {
 const generateAdminData = () => {
   const DEFAULT_ADMIN_EMAIL = "admin@gmail.com";
   const DEFAULT_ADMIN_PASSWORD = "admin123";
+  const DEFAULT_ADMIN_POSITION = "IT Admin";
 
   const defaultAdminHashedPassword = bcrypt.hashSync(
     DEFAULT_ADMIN_PASSWORD,
     SALT_ROUNDS
   );
 
-  return {
-    admin_id: faker.string.uuid(),
-    admin_firstName: faker.person.firstName(),
-    admin_lastName: faker.person.lastName(),
-    admin_email: DEFAULT_ADMIN_EMAIL,
-    admin_password: defaultAdminHashedPassword,
-    isadmin: ADMIN.yes
-  };
+  const admin = [
+    {
+      admin_id: faker.string.uuid(),
+      admin_firstName: faker.person.firstName(),
+      admin_lastName: faker.person.lastName(),
+      admin_dept: "IT",
+      admin_phone: faker.helpers.fromRegExp(
+        /([1-9][0-9]{2}) [0-9]{3}-[0-9]{4}/
+      ),
+      admin_email: DEFAULT_ADMIN_EMAIL,
+      admin_password: defaultAdminHashedPassword,
+      address: faker.location.streetAddress(),
+      admin_date_of_birth: faker.date.birthdate(),
+      admin_start_date: faker.date.soon(),
+      admin_position: DEFAULT_ADMIN_POSITION,
+      admin_supervisor: "",
+      admin_salary: faker.string.numeric({ length: { min: 6, max: 7 } }),
+      admin_image: faker.image.avatar(),
+      isadmin: ADMIN.yes,
+      isEmployed: true
+    }
+  ];
+  return admin;
 };
 
 const seed = () => {
@@ -84,7 +101,8 @@ const seed = () => {
         supervisor VARCHAR(255),
         salary DECIMAL(10, 2),
         image VARCHAR(255),
-        isadmin BOOLEAN
+        isadmin BOOLEAN,
+        isEmployed BOOLEAN
       )
     `);
 
@@ -98,10 +116,9 @@ const seed = () => {
 
     const admin = generateAdminData();
 
-    db.query(
-      "INSERT INTO employee (emp_id, first_name, last_name, email, password, isadmin) VALUES (?, ?, ?, ?, ?, ?)",
-      Object.values(admin)
-    );
+    db.query("INSERT INTO employee VALUES ?", [
+      admin.map(admin => Object.values(admin))
+    ]);
 
     console.log("Seed data inserted successfully");
   } catch (error) {

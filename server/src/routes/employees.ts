@@ -23,6 +23,7 @@ interface IEmployee {
   position: string;
   supervisor: string;
   salary: number;
+  image: string;
 }
 
 const SALT_ROUNDS = 14;
@@ -35,7 +36,6 @@ router
   .route("/")
   .post((req: Request, res: Response) => {
     let { salary } = req.body;
-    salary = parseInt(salary);
     let {
       first_name,
       last_name,
@@ -47,9 +47,11 @@ router
       date_of_birth,
       start_date,
       position,
-      supervisor
+      supervisor,
+      image
     }: IEmployee = req.body;
 
+    salary = parseInt(salary);
     email = email.toLowerCase();
 
     validations.isEmail(email);
@@ -64,6 +66,7 @@ router
     validations.isNumberValid(salary, "salary");
     validations.isDateValid(date_of_birth);
     validations.isDateValid(start_date);
+    validations.isStringEmpty(image, "image");
 
     // Check for duplicate email
     const checkSql = "SELECT email FROM employee WHERE email = ? LIMIT 1;";
@@ -84,7 +87,7 @@ router
     });
 
     const sql =
-      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try {
       const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
 
@@ -102,6 +105,7 @@ router
         position,
         supervisor,
         salary,
+        image,
         ADMIN.no
       ];
 
@@ -136,8 +140,7 @@ router
 router.put("/:id", (req: Request, res: Response) => {
   const { id } = req.params;
   let { salary } = req.body;
-  salary = parseInt(salary);
-  const {
+  let {
     first_name,
     last_name,
     dept,
@@ -148,22 +151,26 @@ router.put("/:id", (req: Request, res: Response) => {
     date_of_birth,
     start_date,
     position,
-    supervisor
+    supervisor,
+    image
   }: IEmployee = req.body;
 
+  salary = parseInt(salary);
+  email = email.toLowerCase();
+
   validations.isEmail(email);
-  validations.isStringEmpty(id, "employee id");
   validations.isStringEmpty(first_name, "first name");
   validations.isStringEmpty(last_name, "last name");
   validations.isStringEmpty(dept, "department");
   validations.isStringEmpty(address, "address");
+  validations.isPasswordValid(password);
+  validations.isPhoneValid(phone);
   validations.isStringEmpty(position, "position");
   validations.isStringEmpty(supervisor, "supervisor");
   validations.isNumberValid(salary, "salary");
-  validations.isPasswordValid(password);
-  validations.isPhoneValid(phone);
   validations.isDateValid(date_of_birth);
   validations.isDateValid(start_date);
+  validations.isStringEmpty(image, "image");
 
   // Check if employee exists before updating
   const checkSql = "SELECT email FROM employee WHERE emp_id = ? LIMIT 1;";
@@ -191,24 +198,37 @@ router.put("/:id", (req: Request, res: Response) => {
   });
 
   const sql =
-    "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, password = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ? WHERE emp_id = ?";
+    "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, password = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
 
   try {
     const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
 
-    db.query(
-      sql,
-      [first_name, last_name, dept, phone, email, hashedPassword, address, id],
-      err => {
-        if (err) {
-          return res.status(400).json({ status: false, message: err });
-        }
+    const employee = [
+      first_name,
+      last_name,
+      dept,
+      phone,
+      email,
+      hashedPassword,
+      address,
+      date_of_birth,
+      start_date,
+      position,
+      supervisor,
+      salary,
+      image,
+      ADMIN.no
+    ];
 
-        return res
-          .status(200)
-          .json({ status: true, message: "Employee updated successfully" });
+    db.query(sql, [...employee, id], err => {
+      if (err) {
+        return res.status(400).json({ status: false, message: err });
       }
-    );
+
+      return res
+        .status(200)
+        .json({ status: true, message: "Employee updated successfully" });
+    });
   } catch (error) {
     console.log(error);
   }

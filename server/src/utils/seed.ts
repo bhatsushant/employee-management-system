@@ -1,7 +1,21 @@
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcrypt";
 import db from "./db";
 
+const SALT_ROUNDS = 14;
+const ADMIN = {
+  yes: 1,
+  no: 0
+};
+
 const generateEmployeeData = () => {
+  const DEFAULT_EMPLOYEE_PASSWORD = "password123";
+
+  const defaultEmployeeHashedPassword = bcrypt.hashSync(
+    DEFAULT_EMPLOYEE_PASSWORD,
+    SALT_ROUNDS
+  );
+
   const employees = [];
   for (let i = 0; i < 50; i++) {
     const employee = {
@@ -15,37 +29,34 @@ const generateEmployeeData = () => {
         "Marketing",
         "Operations"
       ]),
-      phone: faker.helpers.fromRegExp(/^\([2-9][\d]{2}\) [\d]{3}-[\d]{4}$/),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
+      phone: faker.helpers.fromRegExp(/([1-9][0-9]{2}) [0-9]{3}-[0-9]{4}/),
+      email: faker.internet.email().toLowerCase(),
+      password: defaultEmployeeHashedPassword,
       address: faker.location.streetAddress(),
       image: faker.image.avatar(),
-      isadmin: faker.datatype.boolean()
+      isadmin: ADMIN.no
     };
     employees.push(employee);
   }
   return employees;
 };
 
-// const generateDepartmentData = () => {
-//   const departments = [];
-//   for (let i = 0; i < 5; i++) {
-//     const department = {
-//       dept_id: faker.string.uuid(),
-//       dept_name: faker.commerce.department()
-//     };
-//     departments.push(department);
-//   }
-//   return departments;
-// };
-
 const generateAdminData = () => {
+  const DEFAULT_ADMIN_EMAIL = "admin@gmail.com";
+  const DEFAULT_ADMIN_PASSWORD = "admin123";
+
+  const defaultAdminHashedPassword = bcrypt.hashSync(
+    DEFAULT_ADMIN_PASSWORD,
+    SALT_ROUNDS
+  );
+
   return {
     admin_id: faker.string.uuid(),
     admin_firstName: faker.person.firstName(),
     admin_lastName: faker.person.lastName(),
-    admin_email: faker.internet.email(),
-    admin_password: faker.internet.password()
+    admin_email: DEFAULT_ADMIN_EMAIL,
+    admin_password: defaultAdminHashedPassword,
+    isadmin: ADMIN.yes
   };
 };
 
@@ -66,13 +77,6 @@ const seed = () => {
       )
     `);
 
-    // await db.query(`
-    //   CREATE TABLE IF NOT EXISTS department (
-    //     dept_id VARCHAR(150) PRIMARY KEY,
-    //     dept_name VARCHAR(255)
-    //   )
-    // `);
-
     db.query(`
       CREATE TABLE IF NOT EXISTS admin (
         admin_id VARCHAR(150) PRIMARY KEY,
@@ -83,23 +87,20 @@ const seed = () => {
       )
     `);
 
+    db.query("TRUNCATE TABLE admin;");
+
+    db.query("TRUNCATE TABLE employee;");
+
     const employees = generateEmployeeData();
 
-    // const departments = generateDepartmentData();
-
-    // await db.query("INSERT INTO department (dept_id, dept_name) VALUES ?", [
-    //   departments.map(department => Object.values(department))
-    // ]);
-
-    db.query(
-      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, image, isadmin) VALUES ?",
-      [employees.map(employee => Object.values(employee))]
-    );
+    db.query("INSERT INTO employee VALUES ?", [
+      employees.map(employee => Object.values(employee))
+    ]);
 
     const admin = generateAdminData();
 
     db.query(
-      "INSERT INTO admin (admin_id, admin_firstName, admin_lastName, admin_email, admin_password) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO employee (emp_id, first_name, last_name, email, password, isadmin) VALUES (?, ?, ?, ?, ?, ?)",
       Object.values(admin)
     );
 

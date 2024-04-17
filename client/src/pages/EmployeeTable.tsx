@@ -35,7 +35,7 @@ export type Employee = {
   address: string;
 };
 
-const isAdmin = false;
+const isAdmin = true;
 
 const columns: ColumnDef<Employee>[] = [
   {

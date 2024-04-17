@@ -1,5 +1,4 @@
 "use client";
-import { useContext, createContext, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -13,32 +12,11 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { employeeSchema, Employee } from "@/models/employee";
-
-interface EmployeeContextType {
-  employees: Employee[];
-  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
-}
-
-const EmployeeContext = createContext<EmployeeContextType>({
-  employees: [],
-  setEmployees: () => {}
-});
-
-export const useEmployeeContext = () => useContext(EmployeeContext);
-
-export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children
-}) => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-
-  return (
-    <EmployeeContext.Provider value={{ employees, setEmployees }}>
-      {children}
-    </EmployeeContext.Provider>
-  );
-};
+import { useEmployeeContext } from "@/contexts/EmployeeContext";
 
 export function EmployeeForm() {
+  const { createEmployee } = useEmployeeContext();
+
   const form = useForm<Employee>({
     resolver: zodResolver(employeeSchema),
     defaultValues: {
@@ -58,11 +36,20 @@ export function EmployeeForm() {
     }
   });
 
-  const onSubmit = (data: Employee) => {
-    data.salary = data.salary.toString();
+  const onSubmit = async (data: Employee) => {
+    try {
+      data.salary = data.salary.toString();
 
-    console.log(data);
-    // setEmployees((prevEmployees) => [...prevEmployees, data]);
+      const newEmployee = await createEmployee(data);
+      console.log("returned data from api", newEmployee);
+      if (newEmployee) {
+        // Optionally, perform any additional actions after creating the employee
+        console.log("Employee created successfully!");
+      }
+    } catch (error) {
+      // Handle errors if necessary
+      console.error("Error creating employee:", error);
+    }
   };
 
   return (

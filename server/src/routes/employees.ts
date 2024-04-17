@@ -34,6 +34,16 @@ const ADMIN = {
 
 router
   .route("/")
+  .get((req: Request, res: Response) => {
+    const sql = "SELECT * FROM employee where isAdmin = 0";
+
+    db.query(sql, (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: "Internal server error" });
+      }
+      return res.status(200).json(result);
+    });
+  })
   .post((req: Request, res: Response) => {
     let { salary } = req.body;
     let {
@@ -122,18 +132,6 @@ router
       res.status(500).json({ status: false, message: error });
       return error;
     }
-  })
-  .get((req: Request, res: Response) => {
-    const sql =
-      "SELECT first_name, last_name, dept, phone, email, address FROM employee where isadmin = 0;";
-
-    db.query(sql, (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: "Internal server error" });
-      }
-
-      return res.status(200).json(result);
-    });
   });
 
 // Update employee
@@ -258,7 +256,7 @@ router.put("/delete_employee/:id", (req: Request, res: Response) => {
     }
 
     const sql = "UPDATE employee SET isEmployed = ? WHERE emp_id = ?";
-    db.query(sql, [id], (err, result) => {
+    db.query(sql, [0, id], (err, result) => {
       if (err) {
         return res.status(400).json({ status: false, message: err });
       }

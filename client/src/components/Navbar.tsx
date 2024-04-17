@@ -5,7 +5,8 @@ import {
   Gauge,
   CircleUserRound,
   UserRoundCog,
-  LogOut
+  LogOut,
+  MoreVertical
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/UserContext";
@@ -19,8 +20,9 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
-  const { setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
+  console.log(currentUser?.email, currentUser);
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
@@ -69,7 +71,25 @@ export default function Navbar() {
           </ul>
         </SidebarContext.Provider>
 
-        <div className="border-t flex p-3"></div>
+        <div className="border-t flex p-3">
+          <img
+            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
+            alt=""
+            className="w-10 h-10 rounded-md"
+          />
+          <div
+            className={`
+              flex justify-between items-center
+              overflow-hidden transition-all ${expanded ? "w-52 ml-3" : "w-0"}
+          `}
+          >
+            <div className="leading-4">
+              <h4 className="font-semibold">John Doe</h4>
+              <span className="text-xs text-gray-600">jd@gmail.com</span>
+            </div>
+            <MoreVertical size={20} />
+          </div>
+        </div>
       </nav>
     </aside>
   );

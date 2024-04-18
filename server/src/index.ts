@@ -16,10 +16,10 @@ function controller(req: express.Request, res: express.Response) {
 }
 
 const app: Express = express();
-const store = new session.MemoryStore();
 
 app.use(
   session({
+    name: "auth-cookie",
     secret: process.env.SESSION_SECRET || "yourSecretHere",
     resave: false,
     saveUninitialized: true,
@@ -27,8 +27,7 @@ app.use(
       secure: "auto",
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000
-    },
-    store: store
+    }
   })
 );
 
@@ -40,6 +39,16 @@ app.use(
     optionsSuccessStatus: 200
   })
 );
+
+// app.use(
+//   session({
+//     name: "auth-cookie",
+//     secret: "your-secret-key",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false } // set to true if your using https
+//   })
+// );
 
 app.use(express.json());
 app.use("/auth", authRouter);

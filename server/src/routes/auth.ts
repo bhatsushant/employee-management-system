@@ -63,16 +63,6 @@ router.post("/", (req: Request, res: Response) => {
         isAdmin: !!result[0].isadmin
       };
 
-      const token = jwt.sign({ role: "admin", email: email }, sec, {
-        expiresIn: "1d"
-      });
-
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none"
-      });
-
       return res.status(200).json({
         loginStatus: true,
         message: "Login successful",

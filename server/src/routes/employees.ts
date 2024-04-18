@@ -41,7 +41,27 @@ router
       if (err) {
         return res.status(500).json({ error: "Internal server error" });
       }
-      return res.status(200).json(result);
+      const employees: any = [];
+      result.forEach((employee: any) => {
+        employees.push({
+          empId: employee.emp_id,
+          firstName: employee.first_name,
+          lastName: employee.last_name,
+          department: employee.dept,
+          phoneNumber: employee.phone,
+          email: employee.email,
+          address: employee.address,
+          dateOfBirth: employee.date_of_birth,
+          startDate: employee.start_date,
+          position: employee.position,
+          supervisor: employee.supervisor,
+          salary: employee.salary,
+          image: employee.image,
+          isAdmin: employee.isadmin,
+          isEmployed: employee.isEmployed
+        });
+      });
+      return res.status(200).json(employees);
     });
   })
   .post((req: Request, res: Response) => {

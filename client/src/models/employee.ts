@@ -1,9 +1,6 @@
 import { z } from "zod";
 
 export const employeeSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters."
-  }),
   email: z.string().email({
     message: "Invalid email address"
   }),
@@ -20,11 +17,13 @@ export const employeeSchema = z.object({
     .number()
     .int()
     .min(0, { message: "Salary must be a positive number." }),
-  employeeId: z.string()
+  employeeId: z.string(),
+  isAdmin: z.boolean(),
+  isEmployed: z.boolean(),
+  image: z.string()
 });
 
 export interface Employee {
-  username: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -37,4 +36,7 @@ export interface Employee {
   startDate: string;
   salary: string;
   employeeId: string;
+  isAdmin: boolean;
+  isEmployed: boolean;
+  image: string;
 }

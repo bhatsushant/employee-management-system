@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const employeeSchema = z.object({
-  email: z.string().email({
-    message: "Invalid email address"
-  }),
+  email: z.string().email(),
   firstName: z.string(),
   lastName: z.string(),
   phoneNumber: z.string(),
@@ -13,14 +11,7 @@ export const employeeSchema = z.object({
   position: z.string(),
   supervisor: z.string(),
   startDate: z.string(),
-  salary: z
-    .number()
-    .int()
-    .min(0, { message: "Salary must be a positive number." }),
-  employeeId: z.string(),
-  isAdmin: z.boolean(),
-  isEmployed: z.boolean(),
-  image: z.string()
+  salary: z.number().int().min(0)
 });
 
 export interface Employee {

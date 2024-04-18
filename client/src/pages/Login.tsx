@@ -32,6 +32,7 @@ const Login = () => {
         }
       );
       setCurrentUser(data.currentUser);
+      localStorage.setItem("currentUser", JSON.stringify(data.currentUser));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);

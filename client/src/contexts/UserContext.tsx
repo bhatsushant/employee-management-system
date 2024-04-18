@@ -6,28 +6,50 @@ import {
   ReactNode
 } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
+import { checkAuth } from "@/utils/auth";
 
 const auth = getAuth();
 
 interface UserContextType {
   currentUser: any;
   setCurrentUser: (user: any) => void;
+  loading: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
   currentUser: null,
-  setCurrentUser: () => {}
+  setCurrentUser: () => {},
+  loading: true
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       if (user) {
+        console.log(user);
         setCurrentUser(user);
+        setLoading(false);
       } else {
-        setCurrentUser(null);
+        const checkSession = async () => {
+          try {
+            const response = await checkAuth();
+            setCurrentUser(response?.data?.user);
+            if (response?.data?.user) {
+              setCurrentUser(response.data.user);
+            } else {
+              setCurrentUser(null);
+            }
+            setLoading(false);
+          } catch (error) {
+            console.error("Session check failed:", error);
+          }
+          setLoading(false);
+        };
+
+        checkSession();
       }
     });
 
@@ -38,7 +60,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     <UserContext.Provider
       value={{
         currentUser,
-        setCurrentUser
+        setCurrentUser,
+        loading
       }}
     >
       {children}

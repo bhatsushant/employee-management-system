@@ -17,13 +17,21 @@ const Login = () => {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:3000/auth", {
-        email,
-        password
-      });
+      const { data } = await axios.post(
+        "http://localhost:3000/auth",
+        {
+          email,
+          password
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json"
+          }
+        }
+      );
       setCurrentUser(data.currentUser);
-      localStorage.setItem("verifiedUser", "true");
-      localStorage.setItem("user", JSON.stringify(data.currentUser));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
@@ -33,8 +41,8 @@ const Login = () => {
   const handleSignInWithGoogle = async () => {
     try {
       const { user } = await signInWithGooglePopup();
+      console.log(user);
       setCurrentUser(user);
-      localStorage.setItem("verifiedUser", "true");
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed with Google", error);

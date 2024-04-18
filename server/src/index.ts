@@ -17,6 +17,17 @@ function controller(req: express.Request, res: express.Response) {
 
 const app: Express = express();
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
+});
+
 app.use(
   session({
     name: "auth-cookie",
@@ -24,7 +35,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: "auto",
+      secure: false,
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000
     }
@@ -39,16 +50,6 @@ app.use(
     optionsSuccessStatus: 200
   })
 );
-
-// app.use(
-//   session({
-//     name: "auth-cookie",
-//     secret: "your-secret-key",
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false } // set to true if your using https
-//   })
-// );
 
 app.use(express.json());
 app.use("/auth", authRouter);

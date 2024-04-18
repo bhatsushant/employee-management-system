@@ -23,19 +23,33 @@ export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
   const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
-  const user = localStorage.getItem("user");
-  const firstName = user ? JSON.parse(user).firstName : "";
-  const lastName = user ? JSON.parse(user).lastName : "";
-  const image = user ? JSON.parse(user).image : "";
-  const email = user ? JSON.parse(user).email : "";
+  const {
+    firstName = "",
+    lastName = "",
+    email = "",
+    image = "",
+    isAdmin = false
+  } = { ...JSON.parse(localStorage.getItem("user")!) };
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
       await signOutUser();
-      await axios.post("http://localhost:3000/auth/logout");
-      setCurrentUser(null);
-      localStorage.removeItem("verifiedUser");
-      localStorage.removeItem("user");
+      await axios
+        .post(
+          "http://localhost:3000/auth/logout",
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Content-Type": "application/json"
+            }
+          }
+        )
+        .then(() => setCurrentUser(null))
+        .catch(error => {
+          console.error("Backend logout failed:", error);
+        });
       navigate("/");
     } else {
       setCurrentUser(currentUser);
@@ -62,16 +76,21 @@ export default function Navbar() {
               text="Dashboard"
               onClick={() => handleNavigation("/dashboard")}
             />
-            <NavbarItem
-              icon={<UserRoundCog size={20} />}
-              text="Add Employee"
-              onClick={() => handleNavigation("/employee_form")}
-            />
-            <NavbarItem
-              icon={<CircleUserRound size={20} />}
-              text="Profile"
-              onClick={() => handleNavigation("/employee_form")}
-            />
+            {isAdmin && (
+              <NavbarItem
+                icon={<CircleUserRound size={20} />}
+                text="Admin Profile"
+                onClick={() => handleNavigation("/user_profile")}
+              />
+            )}
+            {isAdmin && (
+              <NavbarItem
+                icon={<UserRoundCog size={20} />}
+                text="Add Employee"
+                onClick={() => handleNavigation("/employee_form")}
+              />
+            )}
+
             <NavbarItem
               icon={<LogOut size={20} />}
               text="Logout"

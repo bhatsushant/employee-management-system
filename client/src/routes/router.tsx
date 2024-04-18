@@ -5,29 +5,31 @@ import Navbar from "@/components/Navbar";
 import { Navigate, Outlet, createBrowserRouter } from "react-router-dom";
 import { checkAuth } from "@/utils/auth";
 import { useEffect, useState } from "react";
+import UserProfile from "@/pages/UserProfile";
+import { useAuth } from "@/contexts/UserContext";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const useNativeAuth = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function verifyAuthentication() {
-      const authStatus = await checkAuth();
-      setIsAuthenticated(authStatus);
-      setIsLoading(false);
-    }
+    const authenticate = async () => {
+      const userData = await checkAuth();
+      setUser(userData);
+      setLoading(false);
+    };
 
-    verifyAuthentication();
+    authenticate();
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  return localStorage.getItem("verifiedUser") ? (
-    children
-  ) : (
-    <Navigate to="/" replace />
-  );
+  return { user, loading };
+};
+
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { currentUser, loading } = useAuth();
+  const { user } = useNativeAuth();
+  if (loading) return <div>Loading...</div>;
+  return currentUser || user ? children : <Navigate to="/" replace />;
 };
 
 export const router = createBrowserRouter([
@@ -50,6 +52,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <EmployeeForm />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "user_profile",
+        element: (
+          <ProtectedRoute>
+            <UserProfile />
           </ProtectedRoute>
         )
       }

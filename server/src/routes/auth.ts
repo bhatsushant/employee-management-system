@@ -1,7 +1,6 @@
 import { config } from "dotenv";
 config();
 import { Router, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import db from "../utils/db";
 import * as validations from "../utils/validations";

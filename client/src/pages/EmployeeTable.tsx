@@ -1,5 +1,4 @@
 import * as React from "react";
-import axios from "axios";
 import Papa from "papaparse";
 import {
   ColumnDef,
@@ -16,6 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEmployeeContext } from "@/contexts/EmployeeContext";
+import type { Employee } from "@/models/employee";
 
 import {
   Table,
@@ -26,82 +28,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 
-export type Employee = {
-  firstName: string;
-  lastName: string;
-  department: string;
-  phone: string;
-  email: string;
-  address: string;
-};
-
 const isAdmin = true;
-
-const columns: ColumnDef<Employee>[] = [
-  {
-    accessorKey: "firstName",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          First Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    }
-  },
-  {
-    accessorKey: "lastName",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Last Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    }
-  },
-  {
-    accessorKey: "department",
-    header: "Department",
-    cell: ({ row }) => <div>{row.getValue("department")}</div>
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => <div>{row.getValue("phone")}</div>
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div>{row.getValue("email")}</div>
-  },
-  {
-    accessorKey: "address",
-    header: "Address",
-    cell: ({ row }) => <div>{row.getValue("address")}</div>
-  },
-  ...(isAdmin
-    ? [
-        {
-          id: "actions",
-          header: "Actions",
-          enableHiding: false,
-          cell: () => (
-            <div className="flex justify-center space-x-2">
-              <Button variant="ghost">Edit</Button>
-              <Button variant="ghost">Delete</Button>
-            </div>
-          )
-        }
-      ]
-    : [])
-];
 
 export function EmployeeTable() {
   const [data, setData] = React.useState<Employee[]>([]);
@@ -109,26 +36,30 @@ export function EmployeeTable() {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const { employees, getEmployees, deleteEmployee } = useEmployeeContext();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/employees");
-        setData(response.data);
+        const employeesData = await getEmployees();
+        setData(employeesData);
+        const employedEmployees = employeesData.filter(emp => emp.isEmployed);
+        setData(employedEmployees);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-  }, []);
+  }, [employees, getEmployees]);
 
   const downloadCSV = () => {
     const csv = Papa.unparse(data, {
       columns: [
         "emp_id",
-        "firstName",
-        "lastName",
-        "department",
+        "first_name",
+        "last_name",
+        "dept",
         "phone",
         "email",
         "address"
@@ -144,6 +75,95 @@ export function EmployeeTable() {
 
     window.URL.revokeObjectURL(url);
   };
+
+  const handleEditEmployee = (employee: Employee) => {
+    navigate("/employee_form", { state: { employee, isEdit: true } });
+  };
+  const handleDeleteEmployee = (employee: Employee) => {
+    console.log("Employee:", employee);
+    deleteEmployee(employee.employeeId);
+  };
+  const handleViewEmployee = (employee: string) => {
+    navigate("/employee", { state: { employee } });
+  };
+
+  const columns: ColumnDef<Employee>[] = [
+    {
+      accessorKey: "firstName",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            First Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      accessorKey: "lastName",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Last Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      }
+    },
+    {
+      accessorKey: "department",
+      header: "Department",
+      cell: ({ row }) => <div>{row.getValue("department")}</div>
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => <div>{row.getValue("email")}</div>
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: "Phone",
+      cell: ({ row }) => <div>{row.getValue("phoneNumber")}</div>
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: "actions",
+            header: "Actions",
+            enableHiding: false,
+            cell: ({ row }) => (
+              <div className="flex justify-center space-x-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => handleViewEmployee(row.original)}
+                >
+                  View
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleEditEmployee(row.original)}
+                >
+                  Edit
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  onClick={() => handleDeleteEmployee(row.original)}
+                >
+                  Delete
+                </Button>
+              </div>
+            )
+          }
+        ]
+      : [])
+  ];
 
   const table = useReactTable({
     data,
@@ -161,90 +181,98 @@ export function EmployeeTable() {
   });
 
   return (
-    <div className="flex flex-col flex-grow min-w-0 h-screen">
-      <div className="flex w-full justify-center items-center mt-4">
-        <Input
-          placeholder="Filter department..."
-          value={
-            (table.getColumn("department")?.getFilterValue() as string) ?? ""
-          }
-          onChange={event =>
-            table.getColumn("department")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm justify-center items-center mb-4 p-2"
-        />
-      </div>
-      <div className="overflow-auto">
-        <div className="py-4 max-w-full flex-grow">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map(headerGroup => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <TableHead
-                      key={header.id}
-                      className={header.id === "actions" ? "text-center" : ""}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+    <div className="flex flex-col px-4 gap-y-6 mt-6 ">
+      <Input
+        placeholder="Filter department..."
+        value={
+          (table.getColumn("department")?.getFilterValue() as string) ?? ""
+        }
+        onChange={event =>
+          table.getColumn("department")?.setFilterValue(event.target.value)
+        }
+        className="max-w-sm"
+      />
+      <div className="flex items-center justify-center flex-wrap">
+        <div className="flex items-center">
+          <div className=" max-w-screen-lg">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map(headerGroup => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map(header => {
+                        return (
+                          <TableHead
+                            key={header.id}
+                            className={
+                              header.id === "actions" ? "text-center" : ""
+                            }
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
                   ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map(row => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map(cell => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map(row => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map(cell => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
                       </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="mt-7 flex justify-between">
+              <Button onClick={downloadCSV}>Download CSV</Button>
+              <div className="flex items-center justify-center space-x-2 ">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-end space-x-2 p-4">
-        <Button onClick={downloadCSV}>Download CSV</Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export interface Employee {
   position: string;
   supervisor: string;
   startDate: string;
-  salary: string;
+  salary: number;
   employeeId: string;
   isAdmin: boolean;
   isEmployed: boolean;

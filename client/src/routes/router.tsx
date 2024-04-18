@@ -7,6 +7,7 @@ import { checkAuth } from "@/utils/auth";
 import { useEffect, useState } from "react";
 import UserProfile from "@/pages/UserProfile";
 import { useAuth } from "@/contexts/UserContext";
+import EmployeeDetails from "@/pages/EmployeeDetails";
 
 const useNativeAuth = () => {
   const [user, setUser] = useState(null);
@@ -60,6 +61,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <UserProfile />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "employee",
+        element: (
+          <ProtectedRoute>
+            <EmployeeDetails />
           </ProtectedRoute>
         )
       }

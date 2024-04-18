@@ -39,30 +39,35 @@ router
     const sql = "SELECT * FROM employee where isAdmin = 0";
 
     db.query(sql, (err, result) => {
-      if (err) {
+      try {
+        if (err) {
+          return res.status(500).json({ error: "Internal server error" });
+        }
+        const employees: any = [];
+        result.forEach((employee: any) => {
+          employees.push({
+            employeeId: employee.emp_id,
+            firstName: employee.first_name,
+            lastName: employee.last_name,
+            department: employee.dept,
+            phoneNumber: employee.phone,
+            email: employee.email,
+            address: employee.address,
+            dateOfBirth: employee.date_of_birth,
+            startDate: employee.start_date,
+            position: employee.position,
+            supervisor: employee.supervisor,
+            salary: employee.salary,
+            image: employee.image,
+            isAdmin: employee.isadmin,
+            isEmployed: employee.isEmployed
+          });
+        });
+        return res.status(200).json(employees);
+      } catch (error) {
+        console.error(error);
         return res.status(500).json({ error: "Internal server error" });
       }
-      const employees: any = [];
-      result.forEach((employee: any) => {
-        employees.push({
-          employeeId: employee.emp_id,
-          firstName: employee.first_name,
-          lastName: employee.last_name,
-          department: employee.dept,
-          phoneNumber: employee.phone,
-          email: employee.email,
-          address: employee.address,
-          dateOfBirth: employee.date_of_birth,
-          startDate: employee.start_date,
-          position: employee.position,
-          supervisor: employee.supervisor,
-          salary: employee.salary,
-          image: employee.image,
-          isAdmin: employee.isadmin,
-          isEmployed: employee.isEmployed
-        });
-      });
-      return res.status(200).json(employees);
     });
   })
   .post((req: Request, res: Response) => {
@@ -89,9 +94,10 @@ router
     db.query(checkSql, [employee.email], (err, result) => {
       try {
         if (err) {
-          return res
-            .status(500)
-            .json({ status: false, message: "Internal server error" });
+          return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+          });
         }
         console.log(result);
         if (result.length > 0) {
@@ -102,6 +108,10 @@ router
         }
       } catch (error) {
         console.log(error);
+        return res.status(500).json({
+          status: false,
+          message: "Internal server error"
+        });
       }
     });
 
@@ -162,7 +172,6 @@ router
     }
   });
 
-// Update employee
 router
   .route("/:id")
   .get((req: Request, res: Response) => {
@@ -188,9 +197,12 @@ router
       return res.status(200).json(result[0]);
     });
   })
+  // Update employee
   .put((req: Request, res: Response) => {
     const { id } = req.params;
     let employee = req.body;
+    console.log("employee api", employee);
+
     employee.salary = parseInt(employee.salary);
     employee.email = employee.email.toLowerCase();
 
@@ -213,9 +225,10 @@ router
     db.query(checkSql, [id], (err, result) => {
       try {
         if (err) {
-          return res
-            .status(500)
-            .json({ status: false, message: "Internal server error" });
+          return res.status(500).json({
+            status: false,
+            message: "Internal server error"
+          });
         }
 
         if (result.length === 0) {
@@ -223,16 +236,19 @@ router
             .status(404)
             .json({ status: false, message: "Employee not found" });
         }
+
+        const { isadmin } = result[0];
+
+        if (isadmin === ADMIN.yes) {
+          return res
+            .status(403)
+            .json({ status: false, message: "Invalid Request" });
+        }
       } catch (error) {
-        console.log(error);
-      }
-
-      const { isadmin } = result[0];
-
-      if (isadmin === ADMIN.yes) {
+        console.error(error);
         return res
-          .status(403)
-          .json({ status: false, message: "Invalid Request" });
+          .status(500)
+          .json({ status: false, message: "Internal server error" });
       }
     });
 

@@ -2,25 +2,35 @@ import { createContext, useState, useContext } from "react";
 import { Employee } from "@/models/employee";
 import { EmployeeApi } from "@/data/api/employee";
 
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = date.toISOString().split("T")[0];
+  return formattedDate;
+}
+
 interface EmployeeContextType {
   employees: Employee[];
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
+  getEmployee: (id: string) => Employee | undefined;
   getEmployees: () => Promise<Employee[]>;
   createEmployee: (employee: Employee) => Promise<Employee>; // Update return type here
-  updateEmployee: (id: string, employee: Employee) => Promise<void>;
-  getEmployee: (id: string) => Promise<void>;
+  updateEmployee: (id: string, employee: Employee) => Promise<boolean>;
+  fetchEmployee: (id: string) => Promise<Employee>;
   deleteEmployee: (id: string) => Promise<boolean>;
 }
 
 const EmployeeContext = createContext<EmployeeContextType>({
   employees: [],
   setEmployees: () => {},
+  getEmployee: (id: string) => undefined,
   getEmployees: async () => {
     return [];
   },
   createEmployee: async (employee: Employee) => employee,
-  updateEmployee: async () => {},
-  getEmployee: async () => {},
+  updateEmployee: async (id: string, employee: Employee) => false,
+  fetchEmployee: async (id: string) => {
+    return {} as Employee;
+  },
   deleteEmployee: async () => false
 });
 
@@ -33,6 +43,11 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const employeeApi = new EmployeeApi();
 
+  const getEmployee = (id: string) => {
+    const employee = employees.find(emp => emp.employeeId === id);
+    return employee;
+  };
+
   const getEmployees = async () => {
     try {
       if (employees.length > 0) {
@@ -40,6 +55,7 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const allEmployees = await employeeApi.getEmployees();
+
       setEmployees(allEmployees);
       return allEmployees;
     } catch (error) {
@@ -62,38 +78,57 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       return employee;
     } catch (error) {
       console.error("Error creating employee:", error);
-      throw error; // Rethrow the error to handle it in the caller
+      throw error;
     }
   };
 
-  const updateEmployee = async (id: string, employee: Employee) => {
+  const updateEmployee = async (
+    id: string,
+    employee: Employee
+  ): Promise<boolean> => {
     try {
-      await employeeApi.updateEmployee(id, employee);
-      // You might want to update the state or perform other actions here
+      console.log("inside context", employee);
+
+      employee.startDate = formatDate(employee.startDate);
+      employee.dateOfBirth = formatDate(employee.dateOfBirth);
+
+      const updatedEmployee = await employeeApi.updateEmployee(id, employee);
+      if (updatedEmployee) {
+        setEmployees(prevEmployees =>
+          prevEmployees.map(emp => (emp.employeeId === id ? employee : emp))
+        );
+      }
+
+      return updatedEmployee ? true : false;
     } catch (error) {
       console.error("Error updating employee:", error);
+      throw error;
     }
   };
 
-  const getEmployee = async (id: string) => {
+  const fetchEmployee = async (id: string): Promise<Employee> => {
     try {
       const employee = await employeeApi.getEmployee(id);
 
-      return employee;
-      // You might want to update the state or perform other actions here
+      if (employee) {
+        return employee;
+      } else {
+        throw new Error("Employee not found");
+      }
     } catch (error) {
       console.error("Error fetching employee:", error);
+      throw error;
     }
   };
 
   const deleteEmployee = async (id: string) => {
     try {
       await employeeApi.deleteEmployee(id);
+
       setEmployees(prevEmployees =>
         prevEmployees.filter(employee => employee.employeeId !== id)
       );
       return true;
-      // You might want to update the state or perform other actions here
     } catch (error) {
       console.error("Error deleting employee:", error);
       return false;
@@ -105,10 +140,11 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         employees,
         setEmployees,
+        getEmployee,
         getEmployees,
         createEmployee,
         updateEmployee,
-        getEmployee,
+        fetchEmployee,
         deleteEmployee
       }}
     >

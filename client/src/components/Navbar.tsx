@@ -28,7 +28,7 @@ export default function Navbar() {
     lastName = "",
     email = "",
     image = "",
-    isAdmin = false
+    isAdmin = true
   } = { ...JSON.parse(localStorage.getItem("user")!) };
 
   const handleNavigation = async (path: string) => {
@@ -60,10 +60,10 @@ export default function Navbar() {
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-slate-950 border-r shadow-sm">
-        <div className="p-4 pb-2 flex justify-end items-center">
+        <div className="mt-6 pb-2 flex justify-end items-center">
           <button
             onClick={() => setExpanded(curr => !curr)}
-            className="p-1.5 rounded-lg bg-gray-600 hover:bg-indigo-600"
+            className="rounded-lg bg-gray-600 hover:bg-indigo-600 right-0 relative -mr-3"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>

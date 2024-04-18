@@ -21,7 +21,7 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
-  const { setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigation = async (path: string) => {
@@ -38,7 +38,7 @@ export default function Navbar() {
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-gray-800 border-r shadow-sm">
-        <div className="p-4 pb-2 flex justify-between items-center">
+        <div className="p-4 pb-2 flex justify-end items-center">
           <button
             onClick={() => setExpanded(curr => !curr)}
             className="p-1.5 rounded-lg dark-bg-slate-800 hover:bg-gray-600"
@@ -85,8 +85,16 @@ export default function Navbar() {
           `}
           >
             <div className="leading-4">
-              <h4 className="font-semibold">John Doe</h4>
-              <span className="text-xs text-gray-600">jd@gmail.com</span>
+              <h4 className="font-semibold">
+                {currentUser
+                  ? currentUser?.displayName
+                    ? currentUser?.displayName
+                    : `${currentUser?.first_name} ${currentUser?.last_name}`
+                  : "Guest"}
+              </h4>
+              <span className="text-xs text-gray-600">
+                {currentUser?.email}
+              </span>
             </div>
             <MoreVertical size={20} />
           </div>

@@ -189,7 +189,6 @@ router
       dept,
       phone,
       email,
-      password,
       address,
       date_of_birth,
       start_date,
@@ -206,7 +205,6 @@ router
     validations.isStringEmpty(last_name, "last name");
     validations.isStringEmpty(dept, "department");
     validations.isStringEmpty(address, "address");
-    validations.isPasswordValid(password);
     validations.isPhoneValid(phone);
     validations.isStringEmpty(position, "position");
     validations.isStringEmpty(supervisor, "supervisor");
@@ -241,18 +239,15 @@ router
     });
 
     const sql =
-      "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, password = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
+      "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
 
     try {
-      const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-
       const employee = [
         first_name,
         last_name,
         dept,
         phone,
         email,
-        hashedPassword,
         address,
         date_of_birth,
         start_date,

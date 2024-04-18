@@ -1,16 +1,17 @@
 import { config } from "dotenv";
 config();
-import { Router, Request, Response } from "express";
+import e, { Router, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
 import db from "../utils/db";
 import * as validations from "../utils/validations";
+import { mapEmployeeFields } from "../utils/mapEmployee";
 
 const router = Router();
 
-interface IEmployee {
+export interface IEmployee {
   first_name: string;
   last_name: string;
   dept: string;
@@ -65,61 +66,66 @@ router
     });
   })
   .post((req: Request, res: Response) => {
-    let { salary } = req.body;
-    let {
+    let employee = req.body;
+    employee.salary = parseInt(employee.salary);
+    employee.email = employee.email.toLowerCase();
+
+    validations.isEmail(employee.email);
+    validations.isStringEmpty(employee.firstName, "first name");
+    validations.isStringEmpty(employee.lastName, "last name");
+    validations.isStringEmpty(employee.department, "department");
+    validations.isStringEmpty(employee.address, "address");
+    validations.isPhoneValid(employee.phoneNumber);
+    validations.isStringEmpty(employee.position, "position");
+    validations.isStringEmpty(employee.supervisor, "supervisor");
+    validations.isNumberValid(employee.salary, "salary");
+    validations.isDateValid(employee.dateOfBirth);
+    validations.isDateValid(employee.startDate);
+    validations.isStringEmpty(employee.image, "image");
+
+    // Check for duplicate email
+    const checkSql = "SELECT email FROM employee WHERE email = ? LIMIT 1;";
+
+    db.query(checkSql, [employee.email], (err, result) => {
+      try {
+        if (err) {
+          return res
+            .status(500)
+            .json({ status: false, message: "Internal server error" });
+        }
+        console.log(result);
+        if (result.length > 0) {
+          return res.status(400).json({
+            status: false,
+            message: "Employee with given email already exists" + err!.message
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    const mappedEmployee = mapEmployeeFields(employee);
+
+    const {
       first_name,
       last_name,
       dept,
       phone,
       email,
-      password,
       address,
       date_of_birth,
       start_date,
+      salary,
       position,
       supervisor,
       image
-    }: IEmployee = req.body;
-
-    salary = parseInt(salary);
-    email = email.toLowerCase();
-
-    validations.isEmail(email);
-    validations.isStringEmpty(first_name, "first name");
-    validations.isStringEmpty(last_name, "last name");
-    validations.isStringEmpty(dept, "department");
-    validations.isStringEmpty(address, "address");
-    validations.isPasswordValid(password);
-    validations.isPhoneValid(phone);
-    validations.isStringEmpty(position, "position");
-    validations.isStringEmpty(supervisor, "supervisor");
-    validations.isNumberValid(salary, "salary");
-    validations.isDateValid(date_of_birth);
-    validations.isDateValid(start_date);
-    validations.isStringEmpty(image, "image");
-
-    // Check for duplicate email
-    const checkSql = "SELECT email FROM employee WHERE email = ? LIMIT 1;";
-
-    db.query(checkSql, [email], (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ status: false, message: "Internal server error" });
-      }
-
-      if (result.length > 0) {
-        return res.status(400).json({
-          status: false,
-          message: "Employee with given email already exists" + err!.message
-        });
-      }
-    });
+    } = mappedEmployee;
 
     const sql =
-      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, image, isadmin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, image, isadmin,isEmployed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try {
-      const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
+      const hashedPassword = bcrypt.hashSync("password@123", SALT_ROUNDS);
 
       const employee = [
         uuidv4(),
@@ -136,7 +142,8 @@ router
         supervisor,
         salary,
         image,
-        ADMIN.no
+        ADMIN.no,
+        1
       ];
 
       db.query(sql, [...employee], (err, result) => {
@@ -144,9 +151,10 @@ router
           return res.status(400).json({ status: false, message: err });
         }
 
-        return res
-          .status(200)
-          .json({ status: true, message: "Employee added successfully" });
+        return res.status(200).json({
+          status: true,
+          message: "Employee added successfully"
+        });
       });
     } catch (error) {
       res.status(500).json({ status: false, message: error });
@@ -182,51 +190,41 @@ router
   })
   .put((req: Request, res: Response) => {
     const { id } = req.params;
-    let { salary } = req.body;
-    let {
-      first_name,
-      last_name,
-      dept,
-      phone,
-      email,
-      address,
-      date_of_birth,
-      start_date,
-      position,
-      supervisor,
-      image
-    }: IEmployee = req.body;
+    let employee = req.body;
+    employee.salary = parseInt(employee.salary);
+    employee.email = employee.email.toLowerCase();
 
-    salary = parseInt(salary);
-    email = email.toLowerCase();
-
-    validations.isEmail(email);
-    validations.isStringEmpty(first_name, "first name");
-    validations.isStringEmpty(last_name, "last name");
-    validations.isStringEmpty(dept, "department");
-    validations.isStringEmpty(address, "address");
-    validations.isPhoneValid(phone);
-    validations.isStringEmpty(position, "position");
-    validations.isStringEmpty(supervisor, "supervisor");
-    validations.isNumberValid(salary, "salary");
-    validations.isDateValid(date_of_birth);
-    validations.isDateValid(start_date);
-    validations.isStringEmpty(image, "image");
+    validations.isEmail(employee.email);
+    validations.isStringEmpty(employee.firstName, "first name");
+    validations.isStringEmpty(employee.lastName, "last name");
+    validations.isStringEmpty(employee.department, "department");
+    validations.isStringEmpty(employee.address, "address");
+    validations.isPhoneValid(employee.phoneNumber);
+    validations.isStringEmpty(employee.position, "position");
+    validations.isStringEmpty(employee.supervisor, "supervisor");
+    validations.isNumberValid(employee.salary, "salary");
+    validations.isDateValid(employee.dateOfBirth);
+    validations.isDateValid(employee.startDate);
+    validations.isStringEmpty(employee.image, "image");
 
     // Check if employee exists before updating
     const checkSql = "SELECT email FROM employee WHERE emp_id = ? LIMIT 1;";
 
     db.query(checkSql, [id], (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ status: false, message: "Internal server error" });
-      }
+      try {
+        if (err) {
+          return res
+            .status(500)
+            .json({ status: false, message: "Internal server error" });
+        }
 
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ status: false, message: "Employee not found" });
+        if (result.length === 0) {
+          return res
+            .status(404)
+            .json({ status: false, message: "Employee not found" });
+        }
+      } catch (error) {
+        console.log(error);
       }
 
       const { isadmin } = result[0];
@@ -238,8 +236,25 @@ router
       }
     });
 
+    const mappedEmployee = mapEmployeeFields(employee);
+    console.dir("mapped", mappedEmployee);
+
+    const {
+      first_name,
+      last_name,
+      dept,
+      phone,
+      email,
+      address,
+      date_of_birth,
+      start_date,
+      salary,
+      position,
+      supervisor,
+      image
+    } = mappedEmployee;
     const sql =
-      "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ? WHERE emp_id = ?";
+      "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ?, isEmployed = ? WHERE emp_id = ?";
 
     try {
       const employee = [
@@ -255,7 +270,8 @@ router
         supervisor,
         salary,
         image,
-        ADMIN.no
+        ADMIN.no,
+        1
       ];
 
       db.query(sql, [...employee, id], err => {
@@ -263,9 +279,10 @@ router
           return res.status(400).json({ status: false, message: err });
         }
 
-        return res
-          .status(200)
-          .json({ status: true, message: "Employee updated successfully" });
+        return res.status(200).json({
+          status: true,
+          message: "Employee updated successfully"
+        });
       });
     } catch (error) {
       console.log(error);
@@ -301,9 +318,10 @@ router.put("/delete_employee/:id", (req: Request, res: Response) => {
         return res.status(400).json({ status: false, message: err });
       }
 
-      return res
-        .status(200)
-        .json({ status: true, message: "Employee deleted successfully" });
+      return res.status(200).json({
+        status: true,
+        message: "Employee deleted successfully"
+      });
     });
   });
 });

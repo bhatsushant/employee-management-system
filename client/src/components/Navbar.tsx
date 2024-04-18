@@ -29,6 +29,7 @@ export default function Navbar() {
       await signOutUser();
       await axios.post("http://localhost:3000/auth/logout");
       setCurrentUser(null);
+      localStorage.removeItem("verifiedUser");
       navigate("/");
     } else {
       navigate(path);

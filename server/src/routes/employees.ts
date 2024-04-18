@@ -44,7 +44,7 @@ router
       const employees: any = [];
       result.forEach((employee: any) => {
         employees.push({
-          empId: employee.emp_id,
+          employeeId: employee.emp_id,
           firstName: employee.first_name,
           lastName: employee.last_name,
           department: employee.dept,

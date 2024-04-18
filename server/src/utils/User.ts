@@ -1,9 +1,10 @@
 class User {
-  first_name: string = "";
-  last_name: string = "";
+  firstName: string = "";
+  lastName: string = "";
   email: string = "";
-  emp_id: string = "";
+  employeeId: string = "";
   isAdmin: boolean = false;
+  image: string = "";
 }
 
 export default User;

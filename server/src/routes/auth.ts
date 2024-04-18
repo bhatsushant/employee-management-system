@@ -44,6 +44,7 @@ router.post("/", (req: Request, res: Response) => {
         last_name,
         emp_id,
         isadmin,
+        image,
         password: passwordHash
       } = result[0];
 
@@ -55,24 +56,21 @@ router.post("/", (req: Request, res: Response) => {
           .json({ loginStatus: false, message: "Invalid email or password" });
       }
 
-      req.session.user = {
-        email: result[0].email,
-        first_name: result[0].first_name,
-        last_name: result[0].last_name,
-        emp_id: result[0].emp_id,
-        isAdmin: !!result[0].isadmin
+      const currentUser = {
+        email,
+        firstName: first_name,
+        lastName: last_name,
+        employeeId: emp_id,
+        isAdmin: !!isadmin,
+        image
       };
+
+      req.session.user = currentUser;
 
       return res.status(200).json({
         loginStatus: true,
         message: "Login successful",
-        currentUser: {
-          email,
-          first_name,
-          last_name,
-          emp_id,
-          isadmin: !!isadmin
-        }
+        currentUser: currentUser
       });
     });
   } catch (error: any) {
@@ -87,7 +85,6 @@ router.post("/", (req: Request, res: Response) => {
 });
 
 router.get("/session", (req, res) => {
-  console.log(req.session.user);
   if (req.session.user) {
     return res.status(200).json({
       isAuthenticated: true,

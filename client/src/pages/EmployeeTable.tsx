@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/table";
 
 export type Employee = {
-  first_name: string;
-  last_name: string;
-  dept: string;
+  firstName: string;
+  lastName: string;
+  department: string;
   phone: string;
   email: string;
   address: string;
@@ -39,7 +39,7 @@ const isAdmin = true;
 
 const columns: ColumnDef<Employee>[] = [
   {
-    accessorKey: "first_name",
+    accessorKey: "firstName",
     header: ({ column }) => {
       return (
         <Button
@@ -53,7 +53,7 @@ const columns: ColumnDef<Employee>[] = [
     }
   },
   {
-    accessorKey: "last_name",
+    accessorKey: "lastName",
     header: ({ column }) => {
       return (
         <Button
@@ -67,9 +67,9 @@ const columns: ColumnDef<Employee>[] = [
     }
   },
   {
-    accessorKey: "dept",
+    accessorKey: "department",
     header: "Department",
-    cell: ({ row }) => <div>{row.getValue("dept")}</div>
+    cell: ({ row }) => <div>{row.getValue("department")}</div>
   },
   {
     accessorKey: "phone",
@@ -126,9 +126,9 @@ export function EmployeeTable() {
     const csv = Papa.unparse(data, {
       columns: [
         "emp_id",
-        "first_name",
-        "last_name",
-        "dept",
+        "firstName",
+        "lastName",
+        "department",
         "phone",
         "email",
         "address"
@@ -164,9 +164,11 @@ export function EmployeeTable() {
     <div className="flex flex-col py-4">
       <Input
         placeholder="Filter department..."
-        value={(table.getColumn("dept")?.getFilterValue() as string) ?? ""}
+        value={
+          (table.getColumn("department")?.getFilterValue() as string) ?? ""
+        }
         onChange={event =>
-          table.getColumn("dept")?.setFilterValue(event.target.value)
+          table.getColumn("department")?.setFilterValue(event.target.value)
         }
         className="max-w-sm"
       />

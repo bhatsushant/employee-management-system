@@ -5,6 +5,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { signInWithGooglePopup } from "@/utils/firebase";
 import { useAuth } from "@/contexts/UserContext";
+import logo from "../../public/app_logo.svg";
+import googleLogo from "@/assets/google_logo.svg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -40,6 +42,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+      <img src={logo} alt="Company Logo" className="h-1/3" />
       <h1 className="text-3xl font-semibold mb-4">Login</h1>
       <form className="w-full max-w-sm" onSubmit={handleFormSubmit}>
         <div className="mb-4">
@@ -66,13 +69,14 @@ const Login = () => {
         >
           Sign In
         </Button>
+        <Button
+          onClick={handleSignInWithGoogle}
+          className="mt-4 w-full py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:bg-red-600"
+        >
+          <img src={googleLogo} alt="Google Button" className="mr-2" />
+          Sign In with Google
+        </Button>
       </form>
-      <Button
-        onClick={handleSignInWithGoogle}
-        className="mt-4 py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:bg-red-600"
-      >
-        Sign In with Google
-      </Button>
     </div>
   );
 };

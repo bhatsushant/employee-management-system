@@ -23,6 +23,7 @@ const Login = () => {
       });
       setCurrentUser(data.currentUser);
       localStorage.setItem("verifiedUser", "true");
+      localStorage.setItem("user", JSON.stringify(data.currentUser));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);

@@ -23,6 +23,11 @@ export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
   const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
+  const user = localStorage.getItem("user");
+  const firstName = user ? JSON.parse(user).firstName : "";
+  const lastName = user ? JSON.parse(user).lastName : "";
+  const image = user ? JSON.parse(user).image : "";
+  const email = user ? JSON.parse(user).email : "";
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
@@ -30,6 +35,7 @@ export default function Navbar() {
       await axios.post("http://localhost:3000/auth/logout");
       setCurrentUser(null);
       localStorage.removeItem("verifiedUser");
+      localStorage.removeItem("user");
       navigate("/");
     } else {
       setCurrentUser(currentUser);
@@ -76,7 +82,7 @@ export default function Navbar() {
 
         <div className="border-t flex p-3">
           <img
-            src={currentUser?.photoURL || currentUser?.image}
+            src={currentUser?.photoURL || image}
             alt=""
             className="w-10 h-10 rounded-md"
             onError={e => {
@@ -92,14 +98,10 @@ export default function Navbar() {
           >
             <div className="leading-4">
               <h4 className="font-semibold">
-                {currentUser
-                  ? currentUser?.displayName
-                    ? currentUser?.displayName
-                    : `${currentUser?.firstName} ${currentUser?.lastName}`
-                  : "Guest User"}
+                {currentUser?.displayName || `${firstName} ${lastName}`}
               </h4>
               <span className="text-xs text-gray-600">
-                {currentUser?.email}
+                {currentUser?.email || email}
               </span>
             </div>
             <MoreVertical size={20} />

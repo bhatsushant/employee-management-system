@@ -32,17 +32,18 @@ export default function Navbar() {
       localStorage.removeItem("verifiedUser");
       navigate("/");
     } else {
+      setCurrentUser(currentUser);
       navigate(path);
     }
   };
 
   return (
     <aside className="h-screen">
-      <nav className="h-full flex flex-col bg-gray-800 border-r shadow-sm">
+      <nav className="h-full flex flex-col bg-slate-950 border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-end items-center">
           <button
             onClick={() => setExpanded(curr => !curr)}
-            className="p-1.5 rounded-lg dark-bg-slate-800 hover:bg-gray-600"
+            className="p-1.5 rounded-lg bg-gray-600 hover:bg-indigo-600"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>
@@ -75,9 +76,13 @@ export default function Navbar() {
 
         <div className="border-t flex p-3">
           <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
+            src={currentUser?.photoURL || currentUser?.image}
             alt=""
             className="w-10 h-10 rounded-md"
+            onError={e => {
+              e.currentTarget.src =
+                "https://avatars.githubusercontent.com/u/97726953";
+            }}
           />
           <div
             className={`
@@ -90,8 +95,8 @@ export default function Navbar() {
                 {currentUser
                   ? currentUser?.displayName
                     ? currentUser?.displayName
-                    : `${currentUser?.first_name} ${currentUser?.last_name}`
-                  : "Guest"}
+                    : `${currentUser?.firstName} ${currentUser?.lastName}`
+                  : "Guest User"}
               </h4>
               <span className="text-xs text-gray-600">
                 {currentUser?.email}

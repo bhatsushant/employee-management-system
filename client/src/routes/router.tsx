@@ -59,7 +59,7 @@ export const router = createBrowserRouter([
 
 function NavLayout() {
   return (
-    <div className="flex gap-x-48">
+    <div className="flex">
       <Navbar />
       <Outlet />
     </div>

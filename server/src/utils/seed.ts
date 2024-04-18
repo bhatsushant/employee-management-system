@@ -9,7 +9,7 @@ const ADMIN = {
 };
 
 const generateEmployeeData = () => {
-  const DEFAULT_EMPLOYEE_PASSWORD = "password123";
+  const DEFAULT_EMPLOYEE_PASSWORD = "Password@123";
 
   const defaultEmployeeHashedPassword = bcrypt.hashSync(
     DEFAULT_EMPLOYEE_PASSWORD,

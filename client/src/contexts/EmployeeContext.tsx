@@ -15,7 +15,9 @@ interface EmployeeContextType {
     employee: Partial<Employee>
   ) => Promise<{ success: boolean; message: string }>;
   fetchEmployee: (id: string) => Promise<Employee>;
-  deleteEmployee: (id: string) => Promise<boolean>;
+  deleteEmployee: (
+    id: string
+  ) => Promise<{ success: boolean; message: string }>;
 }
 
 const EmployeeContext = createContext<EmployeeContextType>({
@@ -30,7 +32,7 @@ const EmployeeContext = createContext<EmployeeContextType>({
   fetchEmployee: async () => {
     return {} as Employee;
   },
-  deleteEmployee: async () => false
+  deleteEmployee: async () => ({ success: false, message: "" })
 });
 
 export const useEmployeeContext = () => useContext(EmployeeContext);
@@ -152,17 +154,22 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const deleteEmployee = async (id: string) => {
+  const deleteEmployee = async (
+    id: string
+  ): Promise<{ success: boolean; message: string }> => {
     try {
-      await employeeApi.deleteEmployee(id);
+      const isDeleted = await employeeApi.deleteEmployee(id);
 
+      if (!isDeleted) {
+        throw new Error("Failed to delete employee");
+      }
       setEmployees(prevEmployees =>
         prevEmployees.filter(employee => employee.employeeId !== id)
       );
-      return true;
+      return isDeleted;
     } catch (error) {
       console.error("Error deleting employee:", error);
-      return false;
+      return { success: false, message: "Failed to delete employee" };
     }
   };
 

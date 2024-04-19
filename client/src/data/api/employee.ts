@@ -66,16 +66,16 @@ export class EmployeeApi {
     try {
       const { isAdmin, isEmployed, employeeId, ...employeeData } = employee;
 
-      const response = await axios.put(
+      const { data } = await axios.put(
         `${client}/employees/${id}`,
         employeeData
       );
-      console.log("data", response);
-      if (!response.status) {
+      console.log("data-update", data);
+      if (!data.status) {
         throw new Error("Failed to create employee");
       }
       return {
-        data: response.data,
+        data: data,
         success: true,
         message: "Employee updated successfully"
       };
@@ -88,11 +88,18 @@ export class EmployeeApi {
     }
   };
 
-  deleteEmployee = async (id: string): Promise<boolean> => {
+  deleteEmployee = async (
+    id: string
+  ): Promise<{ success: boolean; message: string }> => {
     try {
       console.log(id);
-      await axios.put(`${client}/employees/delete_employee/${id}`);
-      return true;
+      const deleted = await axios.put(
+        `${client}/employees/delete_employee/${id}`
+      );
+      if (!deleted) {
+        throw new Error("Failed to delete employee");
+      }
+      return { success: true, message: "Employee deleted successfully" };
     } catch (error) {
       throw new Error("Failed to delete employee");
     }

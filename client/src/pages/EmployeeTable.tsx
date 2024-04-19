@@ -11,14 +11,13 @@ import {
   useReactTable,
   SortingState
 } from "@tanstack/react-table";
-
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEmployeeContext } from "@/contexts/EmployeeContext";
 import type { Employee } from "@/models/employee";
-
 import {
   Table,
   TableBody,
@@ -27,10 +26,15 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const isAdmin = true;
 
 export function EmployeeTable() {
+  const [showDeleteModal, setShowDeleteModal] = React.useState<boolean>(false);
+  const [employeeToDelete, setEmployeeToDelete] =
+    React.useState<Employee | null>(null);
   const [data, setData] = React.useState<Employee[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -86,10 +90,47 @@ export function EmployeeTable() {
   const handleEditEmployee = (employee: Employee) => {
     navigate("/employee_form", { state: { employee, isEdit: true } });
   };
+
   const handleDeleteEmployee = (employee: Employee) => {
-    console.log("Employee:", employee);
-    deleteEmployee(employee.employeeId);
+    setEmployeeToDelete(employee);
+    setShowDeleteModal(true);
   };
+
+  const confirmDelete = async () => {
+    if (employeeToDelete) {
+      const deleted = await deleteEmployee(employeeToDelete.employeeId);
+      if (!deleted.success) {
+        toast.error(deleted.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          progress: undefined
+        });
+      }
+      setData(prevData =>
+        prevData.filter(emp => emp.employeeId !== employeeToDelete?.employeeId)
+      );
+      toast.success(deleted.message, {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        progress: undefined
+      });
+
+      setShowDeleteModal(false);
+      setEmployeeToDelete(null);
+    }
+  };
+
+  const closeModal = () => {
+    setShowDeleteModal(false);
+    setEmployeeToDelete(null);
+  };
+
   const handleViewEmployee = (employee: string) => {
     navigate("/employee", { state: { employee } });
   };
@@ -189,6 +230,7 @@ export function EmployeeTable() {
 
   return (
     <div className="flex flex-col flex-grow min-w-0">
+      <ToastContainer />
       <div className="mt-4 mb-4 flex justify-center">
         <Input
           placeholder="Filter department..."
@@ -258,6 +300,12 @@ export function EmployeeTable() {
                   )}
                 </TableBody>
               </Table>
+              <ConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+                message="Are you sure you want to delete this employee?"
+              />
             </div>
             <div className="flex justify-between mt-4">
               <Button onClick={downloadCSV}>Download CSV</Button>

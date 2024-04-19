@@ -205,7 +205,6 @@ router
     try {
       const { id } = req.params;
       let employee = req.body;
-      console.log("employee api", employee);
 
       employee.salary = parseInt(employee.salary);
       employee.email = employee.email.toLowerCase();

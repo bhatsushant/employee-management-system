@@ -97,4 +97,26 @@ export class EmployeeApi {
       throw new Error("Failed to delete employee");
     }
   };
+  logout = async (): Promise<boolean> => {
+    try {
+      const loggedOut = await axios.post(
+        "http://localhost:3000/auth/logout",
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      if (!loggedOut) {
+        throw new Error("Failed to logout");
+      }
+
+      return true;
+    } catch (error) {
+      throw new Error("Failed to logout");
+    }
+  };
 }

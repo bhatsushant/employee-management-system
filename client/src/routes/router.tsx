@@ -86,7 +86,9 @@ function NavLayout() {
   return (
     <div className="flex">
       <Navbar />
-      <Outlet />
+      <div className="h-screen overflow-auto w-full">
+        <Outlet />
+      </div>
     </div>
   );
 }

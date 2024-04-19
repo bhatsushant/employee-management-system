@@ -35,9 +35,8 @@ export function EmployeeDetails() {
   }
 
   return (
-    <div className="max-w-lg mx-auto  shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div className="max-w-lg mx-auto shadow-md rounded px-8 pt-6">
       <div className="mb-4">
-        <strong className="mr-2">Profile </strong>{" "}
         <img
           src={employee.image}
           alt="Employee Image"

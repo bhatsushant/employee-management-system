@@ -9,7 +9,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/UserContext";
 import { signOutUser } from "@/utils/firebase";
-import axios from "axios";
+import { EmployeeApi } from "@/data/api/employee";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -20,34 +20,23 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
   const { currentUser, setCurrentUser } = useAuth();
+  const employeeApi = new EmployeeApi();
   const navigate = useNavigate();
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
-      await signOutUser();
-      await axios
-        .post(
-          "http://localhost:3000/auth/logout",
-          {},
-          {
-            withCredentials: true,
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Content-Type": "application/json"
-            }
-          }
-        )
-        .then(() => setCurrentUser(null))
-        .catch(error => {
-          console.error("Backend logout failed:", error);
-        });
-      navigate("/");
+      const loggedOut = await employeeApi.logout();
+
+      if (loggedOut) {
+        signOutUser();
+        setCurrentUser(null);
+        navigate("/");
+      }
     } else {
       setCurrentUser(currentUser);
       navigate(path);
     }
   };
-
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-slate-950 border-r shadow-sm">

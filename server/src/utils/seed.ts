@@ -9,7 +9,7 @@ const ADMIN = {
 };
 
 const generateEmployeeData = () => {
-  const DEFAULT_EMPLOYEE_PASSWORD = "Password@123";
+  const DEFAULT_EMPLOYEE_PASSWORD = faker.internet.password({ length: 8 });
 
   const defaultEmployeeHashedPassword = bcrypt.hashSync(
     DEFAULT_EMPLOYEE_PASSWORD,

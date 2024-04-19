@@ -51,7 +51,14 @@ export default function Navbar() {
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-slate-950 border-r shadow-sm">
-        <div className="mt-6 pb-2 flex justify-end items-center">
+        <div
+          className={`mt-6 mb-4 flex border-b pb-4 ${
+            expanded ? "justify-between" : "justify-end"
+          }`}
+        >
+          {expanded && (
+            <div className="ml-7 text-xl font-bold">CyberConvoy</div>
+          )}
           <button
             onClick={() => setExpanded(curr => !curr)}
             className="rounded-lg bg-gray-600 hover:bg-indigo-600 right-0 relative -mr-3"

@@ -3,7 +3,6 @@ import {
   ChevronLast,
   ChevronFirst,
   Gauge,
-  CircleUserRound,
   UserRoundCog,
   LogOut
 } from "lucide-react";
@@ -69,13 +68,11 @@ export default function Navbar() {
                 text="Dashboard"
                 onClick={() => handleNavigation("/dashboard")}
               />
-              {currentUser?.isAdmin && (
-                <NavbarItem
-                  icon={<UserRoundCog size={20} />}
-                  text="Add Employee"
-                  onClick={() => handleNavigation("/employee_form")}
-                />
-              )}
+              <NavbarItem
+                icon={<UserRoundCog size={20} />}
+                text="Add Employee"
+                onClick={() => handleNavigation("/employee_form")}
+              />
             </div>
             <div className="h-1/2 flex justify-end items-end">
               <NavbarItem

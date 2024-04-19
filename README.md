@@ -27,9 +27,9 @@ password: Admin@123
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/) installed.
-- [MySQL](https://dev.mysql.com/downloads/mysql/) set up and running.
-- [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) (optional, for database management).
-- A [Firebase](https://firebase.google.com/docs/web/setup) project set up for authentication.
+- [MySQL](https://dev.mysql.com/downloads/mysql/) set up and running. (Kindly make sure you install MySQL server 8.0.36 to avoid conflicts with database queries and versions used in this project)
+- [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) (optional, for database management). (MySQL Workbench 8.0 CE)
+- [Firebase](https://firebase.google.com/docs/web/setup) project set up for authentication.
 
 ### Backend Setup
 

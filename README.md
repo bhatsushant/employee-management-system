@@ -13,12 +13,23 @@ This Employee Management System is a comprehensive full-stack application design
 
 ## Getting Started
 
+### Working and Usage
+
+A few things to note before testing this project. Currently the application authenticates users using a manual sign in method; details of which have been provided below and a Google sign in. Because of time constraints, there was scope for implementation of only one role which is admin. When successfully authenticated, the user can Add, Edit, Delete and View employees.
+
+### Here are the login details for the admin user
+
+```
+email: admin@cyberconvoy.com
+password: Admin@123
+```
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/) installed.
 - [MySQL](https://dev.mysql.com/downloads/mysql/) set up and running.
 - [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) (optional, for database management).
-- A Firebase project set up for authentication.
+- A [Firebase](https://firebase.google.com/docs/web/setup) project set up for authentication.
 
 ### Backend Setup
 
@@ -28,24 +39,32 @@ This Employee Management System is a comprehensive full-stack application design
    cd server
    ```
 
-2. **Install Dependencies:**
+   Note that this project requires npm version ^18.18 because of some packages. Download this version or use a tool like `nvm` to update already existing version
+
+1. **Install Dependencies:**
 
    ```bash
    npm install
    ```
 
-3. **Environment Configuration:**
+1. **Environment Configuration:**
 
-   - Copy the `.env.example` file to `.env`.
+   - Copy the contents of `envexample.md` file to `.env`.
    - Update the `.env` file with your MySQL credentials and other configurations.
 
-4. **Database Seeding:**
+1. **Create Database:**
+
+   ```bash
+   npm run createdb
+   ```
+
+1. **Database Seeding:**
 
    ```bash
    npm run seed
    ```
 
-5. **Running the Server Continuously:**
+1. **Running the Server Continuously:**
    ```bash
    npm run dev
    ```
@@ -67,7 +86,7 @@ This Employee Management System is a comprehensive full-stack application design
 
 3. **Firebase Configuration:**
 
-   - Ensure that your Firebase keys are set up correctly in `.env.local` as per the `.env.example`.
+   - Ensure that your Firebase keys are set up correctly in `.env` as per the `envexample.md` provided in the folder. Copy it's contents to your `.env` file and update your keys which are provided by Firebase after creating a Web Application Project
 
 4. **Running the Client Development Server:**
    ```bash
@@ -80,7 +99,7 @@ This Employee Management System is a comprehensive full-stack application design
 After logging in, users are redirected to the dashboard where they can:
 
 - **View** all employees in a paginated and filterable table.
-- **Add** new employees.
+- **Add** new employees using the navigation bar.
 - **Edit** or **Delete** employee details.
 - **Export** employee data as a CSV file.
 

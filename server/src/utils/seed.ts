@@ -48,8 +48,8 @@ const generateEmployeeData = () => {
 };
 
 const generateAdminData = () => {
-  const DEFAULT_ADMIN_EMAIL = "admin@gmail.com";
-  const DEFAULT_ADMIN_PASSWORD = "admin123";
+  const DEFAULT_ADMIN_EMAIL = "admin@cyberconvoy.com";
+  const DEFAULT_ADMIN_PASSWORD = "Admin@123";
   const DEFAULT_ADMIN_POSITION = "IT Admin";
 
   const defaultAdminHashedPassword = bcrypt.hashSync(

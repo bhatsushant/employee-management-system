@@ -396,7 +396,7 @@ export function EmployeeForm() {
             {!isEdit && (
               <div className="flex w-full justify-center items-center my-3">
                 <Button
-                  disabled={!form.formState.isValid || !isDirty}
+                  
                   type="submit"
                 >
                   Submit

@@ -18,24 +18,37 @@ const UserProfile = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 w-full">
-      <div className="w-full max-w-4xl shadow-md rounded-lg overflow-hidden">
+      <h1 className="flex text-3xl font-semibold mb-12 justify-center items-center">
+        {}User Profile
+      </h1>
+      <div className="w-full max-w-4xl shadow-md rounded-lg overflow-hidden border border-gray-300 divide-y divide-gray-300">
         <Table>
-          <TableCaption className="bg-gray-100 p-4 font-semibold text-lg">
+          <TableCaption className="bg-gray-300 font-semibold text-lg text-black mt-0">
             Admin Profile
           </TableCaption>
           <TableHeader>
-            <TableRow>
-              <TableHead>First Name</TableHead>
-              <TableHead>Last Name</TableHead>
-              <TableHead>Email</TableHead>
+            <TableRow className="border-b border-gray-300">
+              <TableHead className="border-r border-gray-300">
+                First Name
+              </TableHead>
+              <TableHead className="border-r border-gray-300">
+                Last Name
+              </TableHead>
+              <TableHead className="border-r border-gray-300">Email</TableHead>
               <TableHead>Image</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>{currentUser?.firstName || firstName}</TableCell>
-              <TableCell>{currentUser?.lastName || lastName}</TableCell>
-              <TableCell>{currentUser?.email}</TableCell>
+            <TableRow className="border-b border-gray-300">
+              <TableCell className="border-r border-gray-300">
+                {currentUser?.firstName || firstName}
+              </TableCell>
+              <TableCell className="border-r border-gray-300">
+                {currentUser?.lastName || lastName}
+              </TableCell>
+              <TableCell className="border-r border-gray-300">
+                {currentUser?.email}
+              </TableCell>
               <TableCell>
                 <img
                   src={

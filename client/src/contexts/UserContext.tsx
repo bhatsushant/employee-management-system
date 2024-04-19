@@ -30,9 +30,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const checkSession = async () => {
       try {
         const response = await checkAuth();
-        console.log(response);
         response ? setCurrentUser(response) : setCurrentUser(null);
-        console.log(currentUser);
         setLoading(false);
       } catch (error) {
         console.error("Session check failed:", error);

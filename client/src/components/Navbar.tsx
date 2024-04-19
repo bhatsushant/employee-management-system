@@ -5,10 +5,9 @@ import {
   Gauge,
   CircleUserRound,
   UserRoundCog,
-  LogOut,
-  MoreVertical
+  LogOut
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/UserContext";
 import { signOutUser } from "@/utils/firebase";
 import axios from "axios";
@@ -23,13 +22,6 @@ export default function Navbar() {
   const [expanded, setExpanded] = useState(true);
   const { currentUser, setCurrentUser } = useAuth();
   const navigate = useNavigate();
-  const {
-    firstName = "",
-    lastName = "",
-    email = "",
-    image = "",
-    isAdmin = true
-  } = { ...JSON.parse(localStorage.getItem("user")!) };
 
   const handleNavigation = async (path: string) => {
     if (path === "logout") {
@@ -70,38 +62,34 @@ export default function Navbar() {
         </div>
 
         <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">
-            <NavbarItem
-              icon={<Gauge size={20} />}
-              text="Dashboard"
-              onClick={() => handleNavigation("/dashboard")}
-            />
-            {isAdmin && (
+          <ul className="flex-1 px-3 mb-4">
+            <div className="h-1/2">
               <NavbarItem
-                icon={<CircleUserRound size={20} />}
-                text="Admin Profile"
-                onClick={() => handleNavigation("/user_profile")}
+                icon={<Gauge size={20} />}
+                text="Dashboard"
+                onClick={() => handleNavigation("/dashboard")}
               />
-            )}
-            {isAdmin && (
+              {currentUser?.isAdmin && (
+                <NavbarItem
+                  icon={<UserRoundCog size={20} />}
+                  text="Add Employee"
+                  onClick={() => handleNavigation("/employee_form")}
+                />
+              )}
+            </div>
+            <div className="h-1/2 flex justify-end items-end">
               <NavbarItem
-                icon={<UserRoundCog size={20} />}
-                text="Add Employee"
-                onClick={() => handleNavigation("/employee_form")}
+                icon={<LogOut size={20} />}
+                text="Logout"
+                onClick={() => handleNavigation("logout")}
               />
-            )}
-
-            <NavbarItem
-              icon={<LogOut size={20} />}
-              text="Logout"
-              onClick={() => handleNavigation("logout")}
-            />
+            </div>
           </ul>
         </SidebarContext.Provider>
 
         <div className="border-t flex p-3">
           <img
-            src={currentUser?.photoURL || image}
+            src={currentUser?.photoURL || currentUser?.image}
             alt=""
             className="w-10 h-10 rounded-md"
             onError={e => {
@@ -116,14 +104,16 @@ export default function Navbar() {
           `}
           >
             <div className="leading-4">
-              <h4 className="font-semibold">
-                {currentUser?.displayName || `${firstName} ${lastName}`}
-              </h4>
-              <span className="text-xs text-gray-600">
-                {currentUser?.email || email}
-              </span>
+              <Link to="/user_profile">
+                <h4 className="font-semibold">
+                  {currentUser?.displayName ||
+                    `${currentUser?.firstName} ${currentUser?.lastName}`}
+                </h4>
+                <span className="text-xs text-gray-600">
+                  {currentUser?.email || currentUser?.email}
+                </span>
+              </Link>
             </div>
-            <MoreVertical size={20} />
           </div>
         </div>
       </nav>

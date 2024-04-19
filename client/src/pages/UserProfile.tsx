@@ -7,36 +7,38 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import { useAuth } from "@/contexts/UserContext";
 
 const UserProfile = () => {
-  const {
-    firstName = "",
-    lastName = "",
-    email = "",
-    image = ""
-  } = { ...JSON.parse(localStorage.getItem("user")!) };
+  const { currentUser } = useAuth();
   return (
-    <Table>
-      <TableCaption>Admin Profile</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>First Name</TableHead>
-          <TableHead>Last Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Image</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell>{firstName}</TableCell>
-          <TableCell>{lastName}</TableCell>
-          <TableCell>{email}</TableCell>
-          <TableCell>
-            <img src={image} alt="User Image" className="rounded-full" />
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <div className="flex h-screen w-full">
+      <Table>
+        <TableCaption>Admin Profile</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>First Name</TableHead>
+            <TableHead>Last Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Image</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>{currentUser?.firstName}</TableCell>
+            <TableCell>{currentUser?.lastName}</TableCell>
+            <TableCell>{currentUser?.email}</TableCell>
+            <TableCell>
+              <img
+                src={currentUser?.image}
+                alt="User Image"
+                className="rounded-full h-1/3"
+              />
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

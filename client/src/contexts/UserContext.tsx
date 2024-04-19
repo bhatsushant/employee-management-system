@@ -27,28 +27,24 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await checkAuth();
+        console.log(response);
+        response ? setCurrentUser(response) : setCurrentUser(null);
+        console.log(currentUser);
+        setLoading(false);
+      } catch (error) {
+        console.error("Session check failed:", error);
+      }
+      setLoading(false);
+    };
+
     const unsubscribe = onAuthStateChanged(auth, user => {
       if (user) {
-        console.log(user);
         setCurrentUser(user);
         setLoading(false);
       } else {
-        const checkSession = async () => {
-          try {
-            const response = await checkAuth();
-            setCurrentUser(response?.data?.user);
-            if (response?.data?.user) {
-              setCurrentUser(response.data.user);
-            } else {
-              setCurrentUser(null);
-            }
-            setLoading(false);
-          } catch (error) {
-            console.error("Session check failed:", error);
-          }
-          setLoading(false);
-        };
-
         checkSession();
       }
     });

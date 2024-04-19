@@ -56,13 +56,20 @@ export function EmployeeTable() {
   const downloadCSV = () => {
     const csv = Papa.unparse(data, {
       columns: [
-        "emp_id",
-        "first_name",
-        "last_name",
-        "dept",
-        "phone",
+        "employeeId",
+        "firstName",
+        "lastName",
+        "deptartment",
+        "phoneNumber",
         "email",
-        "address"
+        "address",
+        "position",
+        "salary",
+        "startDate",
+        "dateOfBirth",
+        "supervisor",
+        "isEmployed",
+        "image"
       ]
     });
     const blob = new Blob([csv], { type: "text/csv" });

@@ -10,7 +10,10 @@ interface EmployeeContextType {
   createEmployee: (
     employee: Partial<Employee>
   ) => Promise<{ success: boolean; message: string }>;
-  updateEmployee: (id: string, employee: Employee) => Promise<boolean>;
+  updateEmployee: (
+    id: string,
+    employee: Partial<Employee>
+  ) => Promise<{ success: boolean; message: string }>;
   fetchEmployee: (id: string) => Promise<Employee>;
   deleteEmployee: (id: string) => Promise<boolean>;
 }
@@ -23,7 +26,7 @@ const EmployeeContext = createContext<EmployeeContextType>({
     return [];
   },
   createEmployee: async () => ({ success: false, message: "" }),
-  updateEmployee: async () => false,
+  updateEmployee: async () => ({ success: false, message: "" }),
   fetchEmployee: async () => {
     return {} as Employee;
   },
@@ -60,7 +63,7 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  function isCompleteEmployee(
+  function isPartialEmployee(
     employee: Partial<Employee>
   ): employee is Employee {
     return (
@@ -85,9 +88,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
   const createEmployee = async (
     employee: Partial<Employee>
   ): Promise<{ success: boolean; message: string }> => {
-    if (!isCompleteEmployee(employee)) {
-      return { success: false, message: "Missing required employee fields" };
-    }
     try {
       const newEmployee = await employeeApi.createEmployee(employee);
 
@@ -95,7 +95,7 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!newEmployee.success) {
         throw new Error(newEmployee.message);
       }
-      if (isCompleteEmployee(employee)) {
+      if (isPartialEmployee(employee)) {
         setEmployees(prevEmployees => [...prevEmployees, employee as Employee]);
       }
 
@@ -112,22 +112,28 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateEmployee = async (
     id: string,
-    employee: Employee
-  ): Promise<boolean> => {
+    employee: Partial<Employee>
+  ): Promise<{ success: boolean; message: string }> => {
     try {
       console.log("inside context", employee);
 
       const updatedEmployee = await employeeApi.updateEmployee(id, employee);
       if (updatedEmployee) {
         setEmployees(prevEmployees =>
-          prevEmployees.map(emp => (emp.employeeId === id ? employee : emp))
+          prevEmployees.map(emp =>
+            emp.employeeId === id ? (employee as Employee) : emp
+          )
         );
       }
 
-      return updatedEmployee ? true : false;
-    } catch (error) {
-      console.error("Error updating employee:", error);
-      throw error;
+      return updatedEmployee;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return { success: false, message: error.message };
+      } else {
+        // Return a generic error message if the caught error is not an Error object
+        return { success: false, message: "An unknown error occurred" };
+      }
     }
   };
 

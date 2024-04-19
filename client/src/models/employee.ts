@@ -14,7 +14,7 @@ export const employeeSchema = z.object({
     .string()
     .min(10)
     .max(15)
-    .regex(/^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$/, {
+    .regex(/^(?:\(\d{3}\)\s*\d{4}\s*\d{3}|\(\d{3}\)\s*\d{3}-\d{4}|\d{10})$/, {
       message: "Invalid phone number"
     }),
   address: z
@@ -23,7 +23,12 @@ export const employeeSchema = z.object({
     .max(100, { message: "Address must be between 5 and 100 characters" }),
   dateOfBirth: z
     .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, { message: "Date must be in MM-DD-YYYY" }),
+    .regex(
+      /[1-9][0-9][0-9]{2}-([0][1-9]|[1][0-2])-([1-2][0-9]|[0][1-9]|[3][0-1])/gm,
+      {
+        message: "Date must be in YYYY-MM-DD format"
+      }
+    ),
   department: z
     .string()
     .min(2)
@@ -38,7 +43,12 @@ export const employeeSchema = z.object({
     .max(50, { message: "Supervisor must be between 2 and 50 characters" }),
   startDate: z
     .string()
-    .regex(/^\d{2}-\d{2}-\d{4}$/, { message: "Date must be in MM-DD-YYYY" }),
+    .regex(
+      /[1-9][0-9][0-9]{2}-([0][1-9]|[1][0-2])-([1-2][0-9]|[0][1-9]|[3][0-1])/gm,
+      {
+        message: "Date must be in YYYY-MM-DD format"
+      }
+    ),
   salary: z
     .number()
     .int()

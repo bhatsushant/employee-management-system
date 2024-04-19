@@ -27,7 +27,7 @@ export function isStringEmpty(string: string, variableName: string) {
 
 export function isPasswordValid(password: string) {
   const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
   if (!passwordRegex.test(password)) {
     throwError(
       ErrorCode.BAD_REQUEST,
@@ -37,7 +37,8 @@ export function isPasswordValid(password: string) {
 }
 
 export function isPhoneValid(phone: string) {
-  const phoneRegex = /^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$/;
+  const phoneRegex =
+    /^(?:\(\d{3}\)\s*\d{4}\s*\d{3}|\(\d{3}\)\s*\d{3}-\d{4}|\d{10})$/;
   if (!phoneRegex.test(phone)) {
     throwError(ErrorCode.BAD_REQUEST, "Error: Invalid phone format.");
   }
@@ -53,7 +54,7 @@ export function isNumberValid(num: number, variableName: string) {
   if (isNaN(num)) {
     throwError(
       ErrorCode.BAD_REQUEST,
-      `Error: ${variableName || "Provided variable"} is not a number.`
+      `Error: ${variableName} || "Provided variable"} is not a number.`
     );
   }
 }

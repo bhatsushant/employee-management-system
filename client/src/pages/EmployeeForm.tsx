@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -67,14 +68,29 @@ export function EmployeeForm() {
 
   const onSubmit = async (data: Employee) => {
     try {
-      console.log("tanay");
       console.log("onsubmit data", data);
       const newEmployee = await createEmployee(data);
       console.log("returned data from api", newEmployee);
 
-      if (newEmployee) {
-        toast("Employee created successfully!");
+      if (newEmployee.success === false) {
+        toast.error(
+          typeof newEmployee.message === "string"
+            ? newEmployee.message
+            : "Error creating employee",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            theme: "colored"
+          }
+        );
+        throw new Error(newEmployee.message);
       }
+      toast.success("Employee created successfully!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored"
+      });
+      form.reset(defaultValues);
     } catch (error) {
       console.error("Error creating employee:", error);
     }
@@ -92,17 +108,28 @@ export function EmployeeForm() {
       const updatedEmployee = await updateEmployee(id, data);
       console.log("returned data from api", updatedEmployee);
 
-      if (updatedEmployee === true) {
-        form.reset(defaultValues);
-        setIsDirty(false);
-
-        toast.success("Employee updated successfully!", {
-          position: "top-right",
-          autoClose: 2000,
-          theme: "colored"
-        });
-        console.log("Employee updated successfully!");
+      if (!updatedEmployee.success) {
+        toast.error(
+          typeof updatedEmployee.message === "string"
+            ? updatedEmployee.message
+            : "Error updating employee",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            theme: "colored"
+          }
+        );
+        throw new Error("Error updating employee");
       }
+      setIsDirty(false);
+
+      toast.success("Employee updated successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        theme: "colored"
+      });
+      form.reset(defaultValues);
+      console.log("Employee updated successfully!");
     } catch (error) {
       console.error("Error updating employee:", error);
     }
@@ -110,9 +137,7 @@ export function EmployeeForm() {
 
   return (
     <div className="flex flex-grow min-w-0 border-gray-400">
-      {isEdit && (
-        <ToastContainer className="fixed top-0 right-0 z-50 mt-6 mr-6 size-20" />
-      )}
+      <ToastContainer />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -238,7 +263,7 @@ export function EmployeeForm() {
                   <FormLabel>Date of Birth</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="MM/DD/YYYY"
+                      placeholder="YYYY-MM-DD"
                       {...field}
                       onChange={e => {
                         handleInputChange(e);
@@ -322,7 +347,7 @@ export function EmployeeForm() {
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="MM/DD/YYYY"
+                      placeholder="YYYY-MM-DD"
                       {...field}
                       onChange={e => {
                         handleInputChange(e);
@@ -344,10 +369,11 @@ export function EmployeeForm() {
                   <FormControl>
                     <Input
                       type="number"
+                      min={0}
                       {...field}
                       onChange={e => {
                         handleInputChange(e);
-                        field.onChange(e);
+                        field.onChange(Number(e.target.value));
                       }}
                     />
                   </FormControl>

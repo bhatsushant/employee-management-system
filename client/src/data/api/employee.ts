@@ -35,7 +35,7 @@ export class EmployeeApi {
   };
 
   createEmployee = async (
-    employee: Employee
+    employee: Partial<Employee>
   ): Promise<{ data?: Employee; success: boolean; message: string }> => {
     try {
       console.log("inside api", employee);
@@ -59,7 +59,10 @@ export class EmployeeApi {
     }
   };
 
-  updateEmployee = async (id: string, employee: Employee): Promise<boolean> => {
+  updateEmployee = async (
+    id: string,
+    employee: Partial<Employee>
+  ): Promise<{ data?: Employee; success: boolean; message: string }> => {
     try {
       const { isAdmin, isEmployed, employeeId, ...employeeData } = employee;
 
@@ -67,9 +70,21 @@ export class EmployeeApi {
         `${client}/employees/${id}`,
         employeeData
       );
-      return response.status === 200;
+      console.log("data", response);
+      if (!response.status) {
+        throw new Error("Failed to create employee");
+      }
+      return {
+        data: response.data,
+        success: true,
+        message: "Employee updated successfully"
+      };
     } catch (error) {
-      throw new Error("Failed to update employee");
+      console.error("Error creating employee:", error);
+      return {
+        success: false,
+        message: (error as any)?.response?.data?.message
+      };
     }
   };
 

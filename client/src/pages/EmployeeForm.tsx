@@ -274,7 +274,7 @@ export function EmployeeForm() {
                     <FormLabel>Date of Birth</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="MM/DD/YYYY"
+                        placeholder="YYYY-MM-DD"
                         {...field}
                         onChange={e => {
                           handleInputChange(e);
@@ -358,7 +358,7 @@ export function EmployeeForm() {
                     <FormLabel>Start Date</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="MM/DD/YYYY"
+                        placeholder="YYYY-MM-DD"
                         {...field}
                         onChange={e => {
                           handleInputChange(e);

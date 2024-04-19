@@ -109,13 +109,18 @@ export function EmployeeForm() {
   };
 
   return (
-    <div className="flex flex-col gap-y-7">
+    <div className="flex flex-grow min-w-0 border-gray-400">
       {isEdit && (
         <ToastContainer className="fixed top-0 right-0 z-50 mt-6 mr-6 size-20" />
       )}
-
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 mx-auto my-16 max-w-4xl p-8 shadow-md rounded-lg"
+        >
+          <h1 className="flex text-3xl font-semibold mb-12 justify-center items-center">
+            Employee Form
+          </h1>
           <div className="flex flex-wrap max-w-screen-sm gap-6 mx-auto my-16">
             <FormField
               control={form.control}
@@ -160,28 +165,28 @@ export function EmployeeForm() {
               )}
             />
             {/* Email field */}
-            <div className="w-1/2 ml-8">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="example@example.com"
-                        {...field}
-                        onChange={e => {
-                          handleInputChange(e);
-                          field.onChange(e);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="example@example.com"
+                      {...field}
+                      onChange={e => {
+                        handleInputChange(e);
+                        field.onChange(e);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Phone Number field */}
             <FormField
               control={form.control}

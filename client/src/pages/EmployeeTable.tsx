@@ -137,7 +137,7 @@ export function EmployeeTable() {
             id: "actions",
             header: "Actions",
             enableHiding: false,
-            cell: ({ row }) => (
+            cell: ({ row }: { row: any }) => (
               <div className="flex justify-center space-x-2">
                 <Button
                   variant="ghost"
@@ -181,21 +181,23 @@ export function EmployeeTable() {
   });
 
   return (
-    <div className="flex flex-col px-4 gap-y-6 mt-6 ">
-      <Input
-        placeholder="Filter department..."
-        value={
-          (table.getColumn("department")?.getFilterValue() as string) ?? ""
-        }
-        onChange={event =>
-          table.getColumn("department")?.setFilterValue(event.target.value)
-        }
-        className="max-w-sm"
-      />
-      <div className="flex items-center justify-center flex-wrap">
-        <div className="flex items-center">
-          <div className=" max-w-screen-lg">
-            <div className="rounded-md border">
+    <div className="flex flex-col flex-grow min-w-0">
+      <div className="mt-4 mb-4 flex justify-center">
+        <Input
+          placeholder="Filter department..."
+          value={
+            (table.getColumn("department")?.getFilterValue() as string) ?? ""
+          }
+          onChange={event =>
+            table.getColumn("department")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm w-full"
+        />
+      </div>
+      <div className="flex flex-grow items-center justify-center overflow-hidden">
+        <div className="w-full max-w-screen-lg">
+          <div className="max-w-screen-lg">
+            <div className="rounded-md border shadow overflow-auto">
               <Table>
                 <TableHeader>
                   {table.getHeaderGroups().map(headerGroup => (
@@ -250,9 +252,9 @@ export function EmployeeTable() {
                 </TableBody>
               </Table>
             </div>
-            <div className="mt-7 flex justify-between">
+            <div className="flex justify-between mt-4">
               <Button onClick={downloadCSV}>Download CSV</Button>
-              <div className="flex items-center justify-center space-x-2 ">
+              <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"

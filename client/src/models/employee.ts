@@ -13,12 +13,17 @@ export const employeeSchema = z.object({
   phoneNumber: z
     .string()
     .min(10)
-    .max(10, { message: "Phone number must be 10 digits" }),
+    .max(15)
+    .regex(/^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$/, {
+      message: "Invalid phone number"
+    }),
   address: z
     .string()
     .min(5)
     .max(100, { message: "Address must be between 5 and 100 characters" }),
-  dateOfBirth: z.date(),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{2}-\d{2}-\d{4}$/, { message: "Date must be in MM-DD-YYYY" }),
   department: z
     .string()
     .min(2)
@@ -31,7 +36,9 @@ export const employeeSchema = z.object({
     .string()
     .min(2)
     .max(50, { message: "Supervisor must be between 2 and 50 characters" }),
-  startDate: z.date(),
+  startDate: z
+    .string()
+    .regex(/^\d{2}-\d{2}-\d{4}$/, { message: "Date must be in MM-DD-YYYY" }),
   salary: z
     .number()
     .int()
@@ -44,11 +51,11 @@ export interface Employee {
   lastName: string;
   phoneNumber: string;
   address: string;
-  dateOfBirth: Date;
+  dateOfBirth: string;
   department: string;
   position: string;
   supervisor: string;
-  startDate: Date;
+  startDate: string;
   salary: number;
   employeeId: string;
   isAdmin: boolean;

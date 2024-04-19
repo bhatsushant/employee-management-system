@@ -47,8 +47,6 @@ export function EmployeeForm() {
           ...defaultValues,
           ...employee
         };
-      } else {
-        console.error("Employee data not found for the provided ID");
       }
     } else {
       console.error("No employee ID provided in location state");

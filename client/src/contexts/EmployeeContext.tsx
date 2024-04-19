@@ -2,18 +2,14 @@ import { createContext, useState, useContext } from "react";
 import { Employee } from "@/models/employee";
 import { EmployeeApi } from "@/data/api/employee";
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  const formattedDate = date.toISOString().split("T")[0];
-  return formattedDate;
-}
-
 interface EmployeeContextType {
   employees: Employee[];
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
   getEmployee: (id: string) => Employee | undefined;
   getEmployees: () => Promise<Employee[]>;
-  createEmployee: (employee: Employee) => Promise<Employee>; // Update return type here
+  createEmployee: (
+    employee: Partial<Employee>
+  ) => Promise<{ success: boolean; message: string }>;
   updateEmployee: (id: string, employee: Employee) => Promise<boolean>;
   fetchEmployee: (id: string) => Promise<Employee>;
   deleteEmployee: (id: string) => Promise<boolean>;
@@ -22,13 +18,13 @@ interface EmployeeContextType {
 const EmployeeContext = createContext<EmployeeContextType>({
   employees: [],
   setEmployees: () => {},
-  getEmployee: (id: string) => undefined,
+  getEmployee: () => undefined,
   getEmployees: async () => {
     return [];
   },
-  createEmployee: async (employee: Employee) => employee,
-  updateEmployee: async (id: string, employee: Employee) => false,
-  fetchEmployee: async (id: string) => {
+  createEmployee: async () => ({ success: false, message: "" }),
+  updateEmployee: async () => false,
+  fetchEmployee: async () => {
     return {} as Employee;
   },
   deleteEmployee: async () => false
@@ -64,21 +60,53 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const createEmployee = async (employee: Employee) => {
+  function isCompleteEmployee(
+    employee: Partial<Employee>
+  ): employee is Employee {
+    return (
+      typeof employee.email === "string" &&
+      typeof employee.firstName === "string" &&
+      typeof employee.lastName === "string" &&
+      typeof employee.phoneNumber === "string" &&
+      typeof employee.address === "string" &&
+      typeof employee.dateOfBirth === "string" &&
+      typeof employee.department === "string" &&
+      typeof employee.position === "string" &&
+      typeof employee.supervisor === "string" &&
+      typeof employee.startDate === "string" &&
+      typeof employee.salary === "number" &&
+      typeof employee.employeeId === "string" &&
+      typeof employee.isAdmin === "boolean" &&
+      typeof employee.isEmployed === "boolean" &&
+      typeof employee.image === "string"
+    );
+  }
+
+  const createEmployee = async (
+    employee: Partial<Employee>
+  ): Promise<{ success: boolean; message: string }> => {
+    if (!isCompleteEmployee(employee)) {
+      return { success: false, message: "Missing required employee fields" };
+    }
     try {
-      console.log("inside context", employee);
       const newEmployee = await employeeApi.createEmployee(employee);
 
-      if (!newEmployee) {
-        throw new Error("Failed to create employee");
+      console.log("newEmployee", newEmployee);
+      if (!newEmployee.success) {
+        throw new Error(newEmployee.message);
+      }
+      if (isCompleteEmployee(employee)) {
+        setEmployees(prevEmployees => [...prevEmployees, employee as Employee]);
       }
 
-      // Update the context with the new employee
-      setEmployees(prevEmployees => [...prevEmployees, newEmployee]);
-      return employee;
-    } catch (error) {
-      console.error("Error creating employee:", error);
-      throw error;
+      return newEmployee;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return { success: false, message: error.message };
+      } else {
+        // Return a generic error message if the caught error is not an Error object
+        return { success: false, message: "An unknown error occurred" };
+      }
     }
   };
 
@@ -88,9 +116,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
   ): Promise<boolean> => {
     try {
       console.log("inside context", employee);
-
-      employee.startDate = formatDate(employee.startDate);
-      employee.dateOfBirth = formatDate(employee.dateOfBirth);
 
       const updatedEmployee = await employeeApi.updateEmployee(id, employee);
       if (updatedEmployee) {

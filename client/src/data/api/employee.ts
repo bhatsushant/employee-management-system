@@ -1,12 +1,20 @@
 import { Employee } from "@/models/employee";
 import axios from "axios";
-
+import { format } from "date-fns";
 const client = import.meta.env.VITE_API_URL;
+
+function formatDate(date: string) {
+  return date.toString().split("T")[0];
+}
 
 export class EmployeeApi {
   getEmployees = async (): Promise<Employee[]> => {
     try {
       const { data } = await axios.get(`${client}/employees`);
+      data.forEach((employee: Employee) => {
+        employee.dateOfBirth = formatDate(employee.dateOfBirth);
+        employee.startDate = formatDate(employee.startDate);
+      });
 
       return data;
     } catch (error) {
@@ -18,20 +26,36 @@ export class EmployeeApi {
     try {
       console.log(id);
       const { data } = await axios.get(`${client}/employees/${id}`);
-
+      (data.dateOfBirth = new Date(format(data.dateOfBirth, "MM/dd/yyyy"))),
+        console.log(data);
       return data;
     } catch (error) {
       throw new Error("Failed to fetch employee");
     }
   };
 
-  createEmployee = async (employee: Employee): Promise<Employee> => {
+  createEmployee = async (
+    employee: Employee
+  ): Promise<{ data?: Employee; success: boolean; message: string }> => {
     try {
-      console.log("inside api");
+      console.log("inside api", employee);
+
       const response = await axios.post(`${client}/employees`, employee);
-      return response.data;
+      console.log("data", response);
+      if (!response.status) {
+        throw new Error("Failed to create employee");
+      }
+      return {
+        data: response.data,
+        success: true,
+        message: "Employee created successfully"
+      };
     } catch (error) {
-      throw new Error("Failed to create employee");
+      console.error("Error creating employee:", error);
+      return {
+        success: false,
+        message: (error as any)?.response?.data?.message
+      };
     }
   };
 

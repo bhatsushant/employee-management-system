@@ -52,12 +52,17 @@ export default function Navbar() {
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-slate-950 border-r shadow-sm">
         <div
-          className={`mt-6 mb-4 flex border-b pb-4 ${
+          className={`mt-4 mb-4 flex border-b pb-4 ${
             expanded ? "justify-between" : "justify-end"
           }`}
         >
           {expanded && (
-            <div className="ml-7 text-xl font-bold">CyberConvoy</div>
+            <div
+              className="flex flex-grow text-xl font-bold justify-center items-center cursor-pointer"
+              onClick={() => handleNavigation("/dashboard")}
+            >
+              CyberConvoy
+            </div>
           )}
           <button
             onClick={() => setExpanded(curr => !curr)}

@@ -21,14 +21,14 @@ export function EmployeeDetails() {
         const employeeId = receivedEmployee.employeeId;
         const employeeData = getEmployee(employeeId);
 
-        setEmployee(employeeData); // Set the employee data
+        setEmployee(employeeData);
       } catch (error) {
         console.error("Error fetching employee:", error);
       }
     };
 
-    fetchEmployeeData(); // Call the function inside useEffect
-  }, [location.state, getEmployee]); // Add dependencies to useEffect
+    fetchEmployeeData();
+  }, [location.state, getEmployee]);
 
   if (!employee) {
     return <div className="text-red-600">Employee not found!</div>;

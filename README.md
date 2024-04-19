@@ -10,12 +10,20 @@ This Employee Management System is a comprehensive full-stack application design
 - **Data Sorting:** Functionalities to sort employees based on their first and last names.
 - **Data Export:** Ability to export the employee list to a CSV file.
 - **Database Seeding:** Includes seed data to populate the database for initial testing.
+- **View Admin Profile:** View a short bio of the logged in user by clicking on the profile name and image on the sidebar
 
 ## Getting Started
 
 ### Working and Usage
 
 A few things to note before testing this project. Currently the application authenticates users using a manual sign in method; details of which have been provided below and a Google sign in. Because of time constraints, there was scope for implementation of only one role which is admin. When successfully authenticated, the user can Add, Edit, Delete and View employees.
+
+After logging in, users are redirected to the dashboard where they can:
+
+- **View** all employees in a paginated and filterable table.
+- **Add** new employees using the navigation bar.
+- **Edit** or **Delete** employee details.
+- **Export** employee data as a CSV file.
 
 ### Here are the login details for the admin user
 
@@ -94,14 +102,15 @@ password: Admin@123
    ```
    - Access the web application by navigating to `http://localhost:5173`.
 
-## Usage
+### Future Enhancements
 
-After logging in, users are redirected to the dashboard where they can:
+This product can be further improved by adding features like
 
-- **View** all employees in a paginated and filterable table.
-- **Add** new employees using the navigation bar.
-- **Edit** or **Delete** employee details.
-- **Export** employee data as a CSV file.
+1. **Analytical Dashboard** - Update the dashboard to include graphs and bar charts to view details like employee count, number of employeed employees, average salary etc.
+2. **Delete By ID**: Delete an employee based on their ID
+3. **Search By ID**: Search an employee by ID
+4. **Access Control**: Make or remove other users admin by providing an option on the frontend for the admin user
+5. **Theme toggle**: Ability to change the product theme to Light or Dark
 
 ## Contributing
 

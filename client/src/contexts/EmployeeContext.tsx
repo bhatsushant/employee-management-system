@@ -92,8 +92,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
   ): Promise<{ success: boolean; message: string }> => {
     try {
       const newEmployee = await employeeApi.createEmployee(employee);
-
-      console.log("newEmployee", newEmployee);
       if (!newEmployee.success) {
         throw new Error(newEmployee.message);
       }
@@ -106,7 +104,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       if (error instanceof Error) {
         return { success: false, message: error.message };
       } else {
-        // Return a generic error message if the caught error is not an Error object
         return { success: false, message: "An unknown error occurred" };
       }
     }
@@ -117,8 +114,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
     employee: Partial<Employee>
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      console.log("inside context", employee);
-
       const updatedEmployee = await employeeApi.updateEmployee(id, employee);
       if (updatedEmployee) {
         setEmployees(prevEmployees =>
@@ -133,7 +128,6 @@ export const EmployeeProvider: React.FC<{ children: React.ReactNode }> = ({
       if (error instanceof Error) {
         return { success: false, message: error.message };
       } else {
-        // Return a generic error message if the caught error is not an Error object
         return { success: false, message: "An unknown error occurred" };
       }
     }

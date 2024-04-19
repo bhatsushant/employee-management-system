@@ -182,7 +182,6 @@ export function EmployeeForm() {
                 )}
               />
 
-              {/* Last Name field */}
               <FormField
                 control={form.control}
                 name="lastName"
@@ -203,7 +202,6 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Email field */}
 
               <FormField
                 control={form.control}
@@ -226,7 +224,6 @@ export function EmployeeForm() {
                 )}
               />
 
-              {/* Phone Number field */}
               <FormField
                 control={form.control}
                 name="phoneNumber"
@@ -247,7 +244,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Address field */}
+
               <FormField
                 control={form.control}
                 name="address"
@@ -268,7 +265,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Date of Birth field */}
+
               <FormField
                 control={form.control}
                 name="dateOfBirth"
@@ -289,7 +286,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Department field */}
+
               <FormField
                 control={form.control}
                 name="department"
@@ -310,7 +307,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Position field */}
+
               <FormField
                 control={form.control}
                 name="position"
@@ -331,7 +328,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Supervisor field */}
+
               <FormField
                 control={form.control}
                 name="supervisor"
@@ -352,7 +349,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Start Date field */}
+
               <FormField
                 control={form.control}
                 name="startDate"
@@ -373,7 +370,7 @@ export function EmployeeForm() {
                   </FormItem>
                 )}
               />
-              {/* Salary field */}
+
               <FormField
                 control={form.control}
                 name="salary"

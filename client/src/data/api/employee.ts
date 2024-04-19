@@ -24,10 +24,8 @@ export class EmployeeApi {
 
   getEmployee = async (id: string): Promise<Employee> => {
     try {
-      console.log(id);
       const { data } = await axios.get(`${client}/employees/${id}`);
-      (data.dateOfBirth = new Date(format(data.dateOfBirth, "MM/dd/yyyy"))),
-        console.log(data);
+      data.dateOfBirth = new Date(format(data.dateOfBirth, "MM/dd/yyyy"));
       return data;
     } catch (error) {
       throw new Error("Failed to fetch employee");
@@ -38,10 +36,7 @@ export class EmployeeApi {
     employee: Partial<Employee>
   ): Promise<{ data?: Employee; success: boolean; message: string }> => {
     try {
-      console.log("inside api", employee);
-
       const response = await axios.post(`${client}/employees`, employee);
-      console.log("data", response);
       if (!response.status) {
         throw new Error("Failed to create employee");
       }
@@ -70,7 +65,6 @@ export class EmployeeApi {
         `${client}/employees/${id}`,
         employeeData
       );
-      console.log("data-update", data);
       if (!data.status) {
         throw new Error("Failed to create employee");
       }
@@ -92,7 +86,6 @@ export class EmployeeApi {
     id: string
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      console.log(id);
       const deleted = await axios.put(
         `${client}/employees/delete_employee/${id}`
       );

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { signInWithGooglePopup } from "@/utils/firebase";
 import { useAuth } from "@/contexts/UserContext";
 import logo from "../../public/app_logo.svg";
-import googleLogo from "@/assets/google_logo.svg";
+import googleLogo from "@/assets/google_button.svg";
 
 const Login = () => {
   const [email, setEmail] = useState("");

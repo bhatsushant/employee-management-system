@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import UserProfile from "@/pages/UserProfile";
 import { useAuth } from "@/contexts/UserContext";
 import EmployeeDetails from "@/pages/EmployeeDetails";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const useNativeAuth = () => {
   const [user, setUser] = useState(null);
@@ -29,7 +30,12 @@ const useNativeAuth = () => {
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { currentUser, loading } = useAuth();
   const { user } = useNativeAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <ClipLoader color="#4A90E2" size={150} />
+      </div>
+    );
   return currentUser || user ? children : <Navigate to="/" replace />;
 };
 

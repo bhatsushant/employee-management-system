@@ -51,7 +51,7 @@ export const employeeSchema = z.object({
     ),
   salary: z
     .number()
-    .int()
+    .int({ message: "Salary must be a number" })
     .min(0, { message: "Salary must be a positive number" })
 });
 

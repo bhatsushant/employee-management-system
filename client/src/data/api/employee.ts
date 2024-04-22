@@ -14,6 +14,7 @@ export class EmployeeApi {
       data.forEach((employee: Employee) => {
         employee.dateOfBirth = formatDate(employee.dateOfBirth);
         employee.startDate = formatDate(employee.startDate);
+        employee.salary = Number(employee.salary);
       });
 
       return data;
@@ -25,7 +26,6 @@ export class EmployeeApi {
   getEmployee = async (id: string): Promise<Employee> => {
     try {
       const { data } = await axios.get(`${client}/employees/${id}`);
-      data.dateOfBirth = new Date(format(data.dateOfBirth, "MM/dd/yyyy"));
       return data;
     } catch (error) {
       throw new Error("Failed to fetch employee");

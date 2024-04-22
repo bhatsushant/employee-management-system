@@ -61,18 +61,16 @@ export function EmployeeForm() {
   });
 
   useEffect(() => {
-    if (!isEdit) {
-      form.reset(defaultValues);
-      setIsDirty(false);
+    if (isEdit && !form.formState.isSubmitting) {
+      return;
     }
-  }, [isEdit, form]);
+    form.reset(defaultValues);
+    setIsDirty(false);
+  }, [isEdit, form.formState.isSubmitting]);
 
   async function onSubmit(values: z.infer<typeof employeeSchema>) {
     try {
-      console.log("ONSUBMIT called");
-      // console.log("onsubmit data", values);
       const newEmployee = await createEmployee(values);
-      console.log("returned data from api", newEmployee);
 
       if (newEmployee.success === false) {
         toast.error(
@@ -85,14 +83,14 @@ export function EmployeeForm() {
             theme: "colored"
           }
         );
-        throw new Error(newEmployee.message);
+      } else {
+        toast.success("Employee created successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "colored"
+        });
+        form.reset(defaultValues);
       }
-      toast.success("Employee created successfully!", {
-        position: "top-right",
-        autoClose: 5000,
-        theme: "colored"
-      });
-      form.reset(defaultValues);
     } catch (error) {
       console.error("Error creating employee:", error);
     }
@@ -105,21 +103,13 @@ export function EmployeeForm() {
     }
   };
 
-  async function handleEdit(id: string, data: z.infer<typeof employeeSchema>) {
+  async function handleEdit(id: string, values: Partial<Employee>) {
     try {
-      const validationResult = employeeSchema.safeParse(data);
-
-      if (!validationResult.success) {
-        toast.error("Validation failed. Please check your input.", {
-          position: "top-right",
-          autoClose: 2000,
-          theme: "colored"
-        });
+      const isValid = await form.trigger();
+      if (!isValid) {
         return;
       }
-
-      const updatedEmployee = await updateEmployee(id, data);
-      console.log("returned data from api", updatedEmployee);
+      const updatedEmployee = await updateEmployee(id, values);
 
       if (!updatedEmployee.success) {
         toast.error(
@@ -141,8 +131,7 @@ export function EmployeeForm() {
         autoClose: 2000,
         theme: "colored"
       });
-      form.reset(defaultValues);
-      console.log("Employee updated successfully!");
+      form.reset({ ...defaultValues, ...values });
     } catch (error) {
       console.error("Error updating employee:", error);
     }
@@ -383,42 +372,40 @@ export function EmployeeForm() {
                         min={0}
                         {...field}
                         onChange={e => {
+                          const newValue = Number(e.target.value);
+
+                          field.onChange(newValue);
                           handleInputChange(e);
-                          field.onChange(Number(e.target.value));
                         }}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
             {!isEdit && (
               <div className="flex w-full justify-center items-center my-3">
+                <Button type="submit">Submit</Button>
+              </div>
+            )}
+            {isEdit && (
+              <div className="flex justify-center items-center">
                 <Button
-                  
-                  type="submit"
+                  type="button"
+                  disabled={!isDirty}
+                  onClick={() =>
+                    handleEdit(
+                      location.state.employee.employeeId,
+                      form.getValues()
+                    )
+                  }
                 >
-                  Submit
+                  Update Employee
                 </Button>
               </div>
             )}
           </form>
         </Form>
-        {isEdit && (
-          <div className="flex justify-center items-center">
-            <Button
-              disabled={!isDirty}
-              onClick={handleEdit.bind(
-                null,
-                location.state.employee.employeeId,
-                form.getValues() as Employee
-              )}
-            >
-              Update Employee
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

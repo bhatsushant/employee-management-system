@@ -5,9 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
-import db from "../utils/db";
+import pool from "../utils/db";
 import * as validations from "../utils/validations";
 import { mapEmployeeFields } from "../utils/mapEmployee";
+import { FieldPacket, RowDataPacket } from "mysql2/promise";
 
 const router = Router();
 
@@ -32,47 +33,40 @@ const ADMIN = {
   yes: 1,
   no: 0
 };
-
 router
   .route("/")
-  .get((req: Request, res: Response) => {
-    const sql = "SELECT * FROM employee where isAdmin = 0";
-
-    db.query(sql, (err, result) => {
-      try {
-        if (err) {
-          return res.status(500).json({ error: "Internal server error" });
-        }
-        const employees: any = [];
-        result.forEach((employee: any) => {
-          employees.push({
-            employeeId: employee.emp_id,
-            firstName: employee.first_name,
-            lastName: employee.last_name,
-            department: employee.dept,
-            phoneNumber: employee.phone,
-            email: employee.email,
-            address: employee.address,
-            dateOfBirth: employee.date_of_birth,
-            startDate: employee.start_date,
-            position: employee.position,
-            supervisor: employee.supervisor,
-            salary: employee.salary,
-            image: employee.image,
-            isAdmin: employee.isadmin,
-            isEmployed: employee.isEmployed
-          });
-        });
-        return res.status(200).json(employees);
-      } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-    });
-  })
-  .post((req: Request, res: Response) => {
+  .get(async (req: Request, res: Response) => {
     try {
-      let reqEmployee = req.body;
+      const sql = "SELECT * FROM employee where isAdmin = 0";
+      const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.execute(sql);
+
+      const employees = rows.map(employee => ({
+        employeeId: employee.emp_id,
+        firstName: employee.first_name,
+        lastName: employee.last_name,
+        department: employee.dept,
+        phoneNumber: employee.phone,
+        email: employee.email,
+        address: employee.address,
+        dateOfBirth: employee.date_of_birth,
+        startDate: employee.start_date,
+        position: employee.position,
+        supervisor: employee.supervisor,
+        salary: employee.salary,
+        image: employee.image,
+        isAdmin: employee.isadmin,
+        isEmployed: employee.isEmployed
+      }));
+      return res.status(200).json(employees);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  })
+
+  .post(async (req: Request, res: Response) => {
+    try {
+      const reqEmployee = req.body;
 
       reqEmployee.email = reqEmployee.email.toLowerCase();
 
@@ -97,74 +91,64 @@ router
       // validations.isStringEmpty(reqEmployee.image, "image");
 
       // Check for duplicate email
-      const checkSql = "SELECT email FROM employee WHERE email = ? LIMIT 1;";
+      const checkSql = "SELECT email FROM employee WHERE email = ?";
+      const [checkResult]: [RowDataPacket[], FieldPacket[]] = await pool.query(
+        checkSql,
+        [reqEmployee.email]
+      );
 
-      db.query(checkSql, [reqEmployee.email], (err: any, result: any) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            status: false,
-            message: "Internal server error"
-          });
-        }
-
-        if (result.length > 0) {
-          return res.status(400).json({
-            status: false,
-            message: "Employee with given email already exists"
-          });
-        }
-
-        // Proceed with further operations if no error occurred
-        const mappedEmployee = mapEmployeeFields(reqEmployee);
-        const {
-          first_name,
-          last_name,
-          dept,
-          phone,
-          email,
-          address,
-          date_of_birth,
-          start_date,
-          salary,
-          position,
-          supervisor,
-          image
-        } = mappedEmployee;
-
-        const sql =
-          "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, image, isadmin,isEmployed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        const hashedPassword = bcrypt.hashSync("password@123", SALT_ROUNDS);
-        const employee = [
-          uuidv4(),
-          first_name,
-          last_name,
-          dept,
-          phone,
-          email,
-          hashedPassword,
-          address,
-          date_of_birth,
-          start_date,
-          position,
-          supervisor,
-          salary,
-          image,
-          ADMIN.no,
-          1
-        ];
-
-        db.query(sql, employee, (err: any, result) => {
-          if (err) {
-            return res.status(400).json({ status: false, message: err });
-          }
-
-          return res.status(200).json({
-            data: result,
-            status: true,
-            message: "Employee created successfully"
-          });
+      if (checkResult.length > 0) {
+        return res.status(400).json({
+          status: false,
+          message: "Employee with given email already exists"
         });
+      }
+
+      // Proceed with further operations if no error occurred
+      const mappedEmployee = mapEmployeeFields(reqEmployee);
+      const {
+        first_name,
+        last_name,
+        dept,
+        phone,
+        email,
+        address,
+        date_of_birth,
+        start_date,
+        salary,
+        position,
+        supervisor,
+        image
+      } = mappedEmployee;
+
+      const sql =
+        "INSERT INTO employee (emp_id, first_name, last_name, dept, phone, email, password, address, date_of_birth, start_date, position, supervisor, salary, image, isadmin,isEmployed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const hashedPassword = bcrypt.hashSync("password@123", SALT_ROUNDS);
+      const employee = [
+        uuidv4(),
+        first_name,
+        last_name,
+        dept,
+        phone,
+        email,
+        hashedPassword,
+        address,
+        date_of_birth,
+        start_date,
+        position,
+        supervisor,
+        salary,
+        image,
+        ADMIN.no,
+        1
+      ];
+
+      const [result] = await pool.query(sql, employee);
+
+      return res.status(200).json({
+        data: result,
+        status: true,
+        message: "Employee created successfully"
       });
     } catch (error) {
       console.log(error);
@@ -177,19 +161,16 @@ router
 
 router
   .route("/:id")
-  .get((req: Request, res: Response) => {
+  .get(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     validations.isStringEmpty(id, "employee id");
 
-    const sql = "SELECT * FROM employee WHERE emp_id = ? LIMIT 1";
-
-    db.query(sql, [id], (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ status: false, message: "Internal server error" });
-      }
+    try {
+      const sql = "SELECT * FROM employee WHERE emp_id = ? LIMIT 1";
+      const [result]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [
+        id
+      ]);
 
       if (result.length === 0) {
         return res
@@ -198,40 +179,41 @@ router
       }
 
       return res.status(200).json(result[0]);
-    });
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .json({ status: false, message: "Internal server error" });
+    }
   })
   // Update employee
-  .put((req: Request, res: Response) => {
+  .put(async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      let employee = req.body;
+      const employeeData = req.body;
 
-      employee.salary = parseInt(employee.salary);
-      employee.email = employee.email.toLowerCase();
-
-      validations.isEmail(employee.email);
-      validations.isStringEmpty(employee.firstName, "first name");
-      validations.isStringEmpty(employee.lastName, "last name");
-      validations.isStringEmpty(employee.department, "department");
-      validations.isStringEmpty(employee.address, "address");
-      validations.isPhoneValid(employee.phoneNumber);
-      validations.isStringEmpty(employee.position, "position");
-      validations.isStringEmpty(employee.supervisor, "supervisor");
-      validations.isNumberValid(employee.salary, "salary");
-      validations.isDateValid(employee.dateOfBirth);
-      validations.isDateValid(employee.startDate);
-      validations.isStringEmpty(employee.image, "image");
+      // Data validation (assuming validations is a separate module)
+      validations.isEmail(employeeData.email);
+      validations.isStringEmpty(employeeData.firstName, "first name");
+      validations.isStringEmpty(employeeData.lastName, "last name");
+      validations.isStringEmpty(employeeData.department, "department");
+      validations.isStringEmpty(employeeData.address, "address");
+      validations.isPhoneValid(employeeData.phoneNumber);
+      validations.isStringEmpty(employeeData.position, "position");
+      validations.isStringEmpty(employeeData.supervisor, "supervisor");
+      validations.isNumberValid(employeeData.salary, "salary");
+      validations.isDateValid(employeeData.dateOfBirth);
+      validations.isDateValid(employeeData.startDate);
+      validations.isStringEmpty(employeeData.image, "image");
 
       // Check if employee exists before updating
       const checkSql = "SELECT email FROM employee WHERE emp_id = ? LIMIT 1;";
 
-      db.query(checkSql, [id], (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            status: false,
-            message: "Internal server error"
-          });
-        }
+      try {
+        const [result]: [RowDataPacket[], FieldPacket[]] = await pool.query(
+          checkSql,
+          [id]
+        );
 
         if (result.length === 0) {
           return res
@@ -239,62 +221,64 @@ router
             .json({ status: false, message: "Employee not found" });
         }
 
-        const { isadmin } = result[0];
+        const isAdmin = result[0].isAdmin === ADMIN.yes; // Check admin status
 
-        if (isadmin === ADMIN.yes) {
-          return res
-            .status(403)
-            .json({ status: false, message: "Invalid Request" });
+        if (isAdmin) {
+          return res.status(403).json({
+            status: false,
+            message: "Invalid Request (Admin cannot be updated)"
+          });
         }
 
-        // Proceed with further operations if no error occurred
-        const mappedEmployee = mapEmployeeFields(employee);
-        const {
-          first_name,
-          last_name,
-          dept,
-          phone,
-          email,
-          address,
-          date_of_birth,
-          start_date,
-          salary,
-          position,
-          supervisor,
-          image
-        } = mappedEmployee;
+        // Prepare sanitized employee data for update
+        const employee = {
+          firstName: employeeData.firstName,
+          lastName: employeeData.lastName,
+          department: employeeData.department,
+          phone: employeeData.phoneNumber,
+          email: employeeData.email.toLowerCase(), // Ensure email is lowercase
+          address: employeeData.address,
+          dateOfBirth: employeeData.dateOfBirth,
+          startDate: employeeData.startDate,
+          position: employeeData.position,
+          supervisor: employeeData.supervisor,
+          salary: parseInt(employeeData.salary),
+          image: employeeData.image,
+          isAdmin: false, // Set isAdmin to false (not updatable)
+          isEmployed: 1 // Set isEmployed to 1 (assuming active status)
+        };
+
         const sql =
           "UPDATE employee SET first_name = ?, last_name = ?, dept = ?, phone = ?, email = ?, address = ?, date_of_birth = ?, start_date = ?, position = ?, supervisor = ?, salary = ?, image = ?, isAdmin = ?, isEmployed = ? WHERE emp_id = ?";
 
-        const updatedEmployee = [
-          first_name,
-          last_name,
-          dept,
-          phone,
-          email,
-          address,
-          date_of_birth,
-          start_date,
-          position,
-          supervisor,
-          salary,
-          image,
-          ADMIN.no,
-          1,
+        const [updated] = await pool.query(sql, [
+          employee.firstName,
+          employee.lastName,
+          employee.department,
+          employee.phone,
+          employee.email,
+          employee.address,
+          employee.dateOfBirth,
+          employee.startDate,
+          employee.position,
+          employee.supervisor,
+          employee.salary,
+          employee.image,
+          employee.isAdmin,
+          employee.isEmployed,
           id
-        ];
+        ]);
 
-        db.query(sql, updatedEmployee, err => {
-          if (err) {
-            return res.status(400).json({ status: false, message: err });
-          }
-
-          return res.status(200).json({
-            status: true,
-            message: "Employee updated successfully"
-          });
+        return res.status(200).json({
+          status: true,
+          message: "Employee updated successfully"
         });
-      });
+      } catch (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .json({ status: false, message: "Internal server error" });
+      }
     } catch (error) {
       console.error(error);
       return res
@@ -304,40 +288,41 @@ router
   });
 
 // Delete employee
-router.put("/delete_employee/:id", (req: Request, res: Response) => {
+
+router.put("/delete_employee/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
   validations.isStringEmpty(id, "employee id");
 
-  // Check if employee exists
-  const checkSql =
-    "SELECT emp_id, isadmin FROM employee WHERE emp_id = ? LIMIT 1";
+  try {
+    // Check if employee exists
+    const checkQuery =
+      "SELECT emp_id, isadmin FROM employee WHERE emp_id = ? LIMIT 1";
+    const [checkResult]: [RowDataPacket[], FieldPacket[]] = await pool.query(
+      checkQuery,
+      [id]
+    );
 
-  db.query(checkSql, [id], (err, result) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ status: false, message: "Internal server error" });
-    }
-
-    if (result.length === 0) {
+    if (!checkResult.length) {
       return res
         .status(404)
         .json({ status: false, message: "Employee not found" });
     }
 
-    const sql = "UPDATE employee SET isEmployed = ? WHERE emp_id = ?";
-    db.query(sql, [0, id], (err, result) => {
-      if (err) {
-        return res.status(400).json({ status: false, message: err });
-      }
+    // Update employee status
+    const updateSql = "UPDATE employee SET isEmployed = ? WHERE emp_id = ?";
+    const [updateResult] = await pool.query(updateSql, [0, id]);
 
-      return res.status(200).json({
-        status: true,
-        message: "Employee deleted successfully"
-      });
+    return res.status(200).json({
+      status: true,
+      message: "Employee deleted successfully"
     });
-  });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ status: false, message: "Internal server error" });
+  }
 });
 
 // image upload

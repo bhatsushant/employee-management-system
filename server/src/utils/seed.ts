@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
-import db from "./db";
+import pool from "./db";
 
 const SALT_ROUNDS = 14;
 const ADMIN = {
@@ -33,7 +33,11 @@ const generateEmployeeData = () => {
       email: faker.internet.email().toLowerCase(),
       password: defaultEmployeeHashedPassword,
       address: faker.location.streetAddress(),
-      date_of_birth: faker.date.birthdate({ min: 18, max: 65, mode: "age" }),
+      date_of_birth: faker.date.birthdate({
+        min: 18,
+        max: 65,
+        mode: "age"
+      }),
       start_date: faker.date.past({ years: 10 }),
       position: faker.person.jobTitle(),
       supervisor: faker.person.fullName(),
@@ -82,10 +86,12 @@ const generateAdminData = () => {
   return admin;
 };
 
-const seed = () => {
+const seed = async () => {
   try {
-    db.query(`DROP TABLE IF EXISTS employee`);
-    db.query(`
+    const connection = await pool.getConnection();
+
+    await connection.query("DROP TABLE IF EXISTS employee");
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS employee (
         emp_id VARCHAR(150) PRIMARY KEY,
         first_name VARCHAR(255),
@@ -106,25 +112,22 @@ const seed = () => {
       )
     `);
 
-    db.query("TRUNCATE TABLE employee;");
+    await connection.query("TRUNCATE TABLE employee;");
 
     const employees = generateEmployeeData();
-
-    db.query("INSERT INTO employee VALUES ?", [
+    await connection.query("INSERT INTO employee VALUES ?", [
       employees.map(employee => Object.values(employee))
     ]);
 
     const admin = generateAdminData();
-
-    db.query("INSERT INTO employee VALUES ?", [
+    await connection.query("INSERT INTO employee VALUES ?", [
       admin.map(admin => Object.values(admin))
     ]);
 
     console.log("Seed data inserted successfully");
+    connection.release();
   } catch (error) {
     console.error("Error inserting seed data:", error);
-  } finally {
-    db.end();
   }
 };
 

@@ -61,12 +61,11 @@ export function EmployeeForm() {
   });
 
   useEffect(() => {
-    if (isEdit && !form.formState.isSubmitting) {
-      return;
+    if (!location.state?.isEdit && !form.formState.isSubmitted) {
+      form.reset(defaultValues);
+      setIsDirty(false);
     }
-    form.reset(defaultValues);
-    setIsDirty(false);
-  }, [isEdit, form.formState.isSubmitting]);
+  }, [location.state?.isEdit, form.formState.isSubmitted]);
 
   async function onSubmit(values: z.infer<typeof employeeSchema>) {
     try {
@@ -83,6 +82,7 @@ export function EmployeeForm() {
             theme: "colored"
           }
         );
+        return;
       } else {
         toast.success("Employee created successfully!", {
           position: "top-right",
@@ -90,6 +90,7 @@ export function EmployeeForm() {
           theme: "colored"
         });
         form.reset(defaultValues);
+        setIsDirty(false);
       }
     } catch (error) {
       console.error("Error creating employee:", error);
@@ -131,7 +132,10 @@ export function EmployeeForm() {
         autoClose: 2000,
         theme: "colored"
       });
-      form.reset({ ...defaultValues, ...values });
+      form.reset({
+        ...defaultValues,
+        ...values
+      });
     } catch (error) {
       console.error("Error updating employee:", error);
     }

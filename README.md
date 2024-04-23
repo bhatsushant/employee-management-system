@@ -18,6 +18,8 @@ This Employee Management System is a comprehensive full-stack application design
 
 A few things to note before testing this project. Currently the application authenticates users using a manual sign in method; details of which have been provided below and a Google sign in. Because of time constraints, there was scope for implementation of only one role which is admin. When successfully authenticated, the user can Add, Edit, Delete and View employees.
 
+### **This app does not delete any records as logically an employee management system only makes an employee inactive after the employee has left the organization. In that sense I have made this app such that the `isEmployed` flag in the employee table is set to 0 once the employee has been deleted from the frontend but the record of an employee is still available to view from the database**
+
 After logging in, users are redirected to the dashboard where they can:
 
 - **View** all employees in a paginated and filterable table.

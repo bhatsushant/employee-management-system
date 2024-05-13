@@ -87,8 +87,9 @@ const generateAdminData = () => {
 };
 
 const seed = async () => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
 
     await connection.query("DROP TABLE IF EXISTS employee");
     await connection.query(`
@@ -119,6 +120,7 @@ const seed = async () => {
       employees.map(employee => Object.values(employee))
     ]);
 
+    await connection.commit();
     const admin = generateAdminData();
     await connection.query("INSERT INTO employee VALUES ?", [
       admin.map(admin => Object.values(admin))
@@ -128,6 +130,12 @@ const seed = async () => {
     connection.release();
   } catch (error) {
     console.error("Error inserting seed data:", error);
+    if (connection) {
+      await connection.rollback();
+      connection.release();
+    }
+  } finally {
+    process.exit(0);
   }
 };
 

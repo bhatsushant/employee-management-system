@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/UserContext";
 import logo from "../../public/app_logo.svg";
 import googleLogo from "@/assets/google_button.svg";
 
+const client = import.meta.env.VITE_API_URL;
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +20,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:3000/auth",
+        `${client}/auth`,
         {
           email,
           password

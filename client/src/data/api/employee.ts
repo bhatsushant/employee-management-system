@@ -99,7 +99,7 @@ export class EmployeeApi {
   logout = async (): Promise<boolean> => {
     try {
       const loggedOut = await axios.post(
-        "http://localhost:3000/auth/logout",
+        `${client}/auth/logout`,
         {},
         {
           withCredentials: true,

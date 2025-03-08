@@ -63,7 +63,13 @@ password: Admin@123
    - Update the `.env` file with your MySQL credentials and other configurations as shown in the encexample.md file.
    - Note that the envexample.md file also contains keys like `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `SESSION_SECRET` which are not required for your DB connection but are required for your code. You can assign any random values for these keys for the purposes of testing.
 
-1. **Database Creation & Seeding:**
+1. **Create Database:**
+
+   ```bash
+   npm run createdb
+   ```
+
+1. **Database Seeding:**
 
    ```bash
    npm run seed

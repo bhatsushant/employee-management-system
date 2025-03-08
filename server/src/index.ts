@@ -11,8 +11,6 @@ declare module "express-session" {
   }
 }
 
-const PORT = process.env.PORT || 3000;
-
 function controller(req: express.Request, res: express.Response) {
   req.session.user;
 }
@@ -57,6 +55,6 @@ app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/employees", employeeRouter);
 
-app.listen(PORT, () => {
+app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

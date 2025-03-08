@@ -18,7 +18,10 @@ function controller(req: express.Request, res: express.Response) {
 const app: Express = express();
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://employee-management-system-1-u4pn.onrender.com"
+  );
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Headers",
@@ -35,7 +38,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000
     }
@@ -44,7 +47,7 @@ app.use(
 
 app.use(
   cors({
-    origin: "*",
+    origin: "https://employee-management-system-1-u4pn.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     optionsSuccessStatus: 200

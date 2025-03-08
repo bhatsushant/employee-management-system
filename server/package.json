@@ -8,6 +8,7 @@
     "dev": "tsx watch src/index.ts",
     "createdb": "tsx ./src/utils/createDb.ts",
     "seed": "tsx ./src/utils/seed.ts",
+    "dev-seed": "npm run createdb && npm run seed && npm run dev",
     "build": "tsc"
   },
   "keywords": [],
